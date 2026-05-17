@@ -51,4 +51,23 @@ public class ConsultaService {
 
         return consultaRepository.save(consulta);
     }
+
+    @Transactional
+    public Consulta cancelar(Long consultaId) {
+        Consulta consulta = consultaRepository.findById(consultaId)
+                .orElseThrow(() -> new RuntimeException("Consulta não encontrada"));
+
+        if (consulta.getStatus() == StatusConsulta.CANCELADA) {
+            throw new RuntimeException("Consulta já está cancelada");
+        }
+
+        consulta.setStatus(StatusConsulta.CANCELADA);
+
+        HorarioDisponivel horario = consulta.getHorarioDisponivel();
+        horario.setDisponivel(true);
+        horarioRepository.save(horario);
+
+        return consultaRepository.save(consulta);
+    }
+
 }

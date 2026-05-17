@@ -19,4 +19,10 @@ public class ConsultaController {
     public Consulta agendar(@RequestBody AgendamentoRequest request) {
         return service.agendar(request);
     }
+
+    @PutMapping("/{id}/cancelar")
+    public Consulta cancelar(@PathVariable Long id) {
+        return service.cancelar(id);
+    }
+
 }

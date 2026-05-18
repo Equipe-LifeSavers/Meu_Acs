@@ -10,6 +10,7 @@ import com.clinica.agendamento.repository.HorarioDisponivelRepository;
 import com.clinica.agendamento.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 public class ConsultaService {
@@ -68,6 +69,14 @@ public class ConsultaService {
         horarioRepository.save(horario);
 
         return consultaRepository.save(consulta);
+    }
+
+    public List<Consulta> listarPorPaciente(Long pacienteId) {
+        return consultaRepository.findByPacienteId(pacienteId);
+    }
+
+    public List<Consulta> listarPorMedico(Long medicoId) {
+        return consultaRepository.findByMedicoId(medicoId);
     }
 
 }

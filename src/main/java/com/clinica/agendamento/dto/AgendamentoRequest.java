@@ -1,5 +1,6 @@
 package com.clinica.agendamento.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,6 +8,9 @@ import lombok.Setter;
 @Setter
 public class AgendamentoRequest {
 
+    @NotNull
     private Long pacienteId;
+
+    @NotNull
     private Long horarioId;
 }

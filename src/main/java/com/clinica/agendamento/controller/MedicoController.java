@@ -2,6 +2,9 @@ package com.clinica.agendamento.controller;
 
 import com.clinica.agendamento.model.Medico;
 import com.clinica.agendamento.service.MedicoService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +20,7 @@ public class MedicoController {
     }
 
     @PostMapping
-    public Medico salvar(@RequestBody Medico medico) {
+    public Medico salvar(@Valid @RequestBody Medico medico) {
         return service.salvar(medico);
     }
 
@@ -32,7 +35,7 @@ public class MedicoController {
     }
 
     @PutMapping("/{id}")
-    public Medico atualizar(@PathVariable Long id, @RequestBody Medico medico) {
+    public Medico atualizar(@PathVariable Long id, @Valid @RequestBody Medico medico) {
         return service.atualizar(id, medico);
     }
 

@@ -2,8 +2,8 @@ package com.clinica.agendamento.controller;
 
 import com.clinica.agendamento.model.Paciente;
 import com.clinica.agendamento.service.PacienteService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -17,7 +17,7 @@ public class PacienteController {
     }
 
     @PostMapping
-    public Paciente salvar(@RequestBody Paciente paciente) {
+    public Paciente salvar(@Valid @RequestBody Paciente paciente) {
         return service.salvar(paciente);
     }
 

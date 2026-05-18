@@ -1,6 +1,7 @@
 package com.clinica.agendamento.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -14,12 +15,16 @@ public class Medico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     private String nome;
 
+    @NotBlank
     @Column(unique = true)
     private String crm;
 
+    @NotBlank
     private String especialidade;
 
+    @NotBlank
     private String telefone;
 }

@@ -3,6 +3,9 @@ package com.clinica.agendamento.controller;
 import com.clinica.agendamento.dto.HorarioRequest;
 import com.clinica.agendamento.model.HorarioDisponivel;
 import com.clinica.agendamento.service.HorarioDisponivelService;
+
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +21,7 @@ public class HorarioDisponivelController {
     }
 
     @PostMapping
-    public HorarioDisponivel cadastrar(@RequestBody HorarioRequest request) {
+    public HorarioDisponivel cadastrar(@Valid @RequestBody HorarioRequest request) {
         return service.cadastrar(request);
     }
 

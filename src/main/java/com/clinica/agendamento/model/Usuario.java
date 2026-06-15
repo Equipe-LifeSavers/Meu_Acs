@@ -3,6 +3,7 @@ package com.clinica.agendamento.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import com.clinica.agendamento.enums.Perfil;
 
 @Entity
 @Getter

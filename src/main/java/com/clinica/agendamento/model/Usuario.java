@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
@@ -25,6 +26,8 @@ public class Usuario {
     @NotBlank
     private String senha;
 
-    @NotBlank
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Perfil perfil;
+
+    private boolean ativo = true;
 }

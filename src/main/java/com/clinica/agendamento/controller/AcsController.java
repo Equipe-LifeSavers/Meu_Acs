@@ -17,13 +17,13 @@ import java.util.List;
 @RequestMapping("/acs")
 @RequiredArgsConstructor
 public class AcsController {
-    
+
     private final AcsRepository acsRepository;
     private final RegiaoRepository regiaoRepository;
     private final UsuarioRepository usuarioRepository;
 
     @PostMapping
-    public ResponseEntity<Acs> criar(@RequestBody Acs request) {
+    public ResponseEntity<Acs> criar(@RequestBody AcsRequest request) {
         Regiao regiao = regiaoRepository.findById(request.regiaoId())
                 .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
@@ -58,4 +58,21 @@ public class AcsController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/{acsId}/regiao/{regiaoId}")
+    public ResponseEntity<Acs> associarRegiao(
+            @PathVariable Long acsId,
+            @PathVariable Long regiaoId) {
+
+        Acs acs = acsRepository.findById(acsId)
+                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+
+        Regiao regiao = regiaoRepository.findById(regiaoId)
+                .orElseThrow(() -> new RuntimeException("Região não encontrada"));
+
+        acs.setRegiao(regiao);
+
+        return ResponseEntity.ok(acsRepository.save(acs));
+    }
+
 }

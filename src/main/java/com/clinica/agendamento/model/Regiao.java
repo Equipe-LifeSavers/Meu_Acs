@@ -2,6 +2,7 @@ package com.clinica.agendamento.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
 @Table(name = "regioes")
@@ -21,4 +22,7 @@ public class Regiao {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ubs_id", nullable = false)
     private Ubs ubs;
+
+    @OneToMany(mappedBy = "regiao")
+    private List<Acs> agentes;
 }

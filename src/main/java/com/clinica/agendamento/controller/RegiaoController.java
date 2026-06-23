@@ -7,6 +7,7 @@ import com.clinica.agendamento.repository.RegiaoRepository;
 import com.clinica.agendamento.repository.UbsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class RegiaoController {
     private final RegiaoRepository regiaoRepository;
     private final UbsRepository ubsRepository;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Regiao> criar(@RequestBody RegiaoRequest request) {
 
@@ -27,16 +29,19 @@ public class RegiaoController {
 
         Regiao regiao = new Regiao();
         regiao.setNomeArea(request.nomeArea());
+        regiao.setObservacao(request.observacao());
         regiao.setUbs(ubs);
 
         return ResponseEntity.ok(regiaoRepository.save(regiao));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping
     public ResponseEntity<List<Regiao>> listarTodos() {
         return ResponseEntity.ok(regiaoRepository.findAll());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/{id}")
     public ResponseEntity<Regiao> buscarPorId(@PathVariable Long id) {
         return regiaoRepository.findById(id)
@@ -44,6 +49,7 @@ public class RegiaoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (regiaoRepository.existsById(id)) {
@@ -54,6 +60,7 @@ public class RegiaoController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/{regiaoId}/ubs/{ubsId}")
     public ResponseEntity<Regiao> associarUbs(
             @PathVariable Long regiaoId,

@@ -9,6 +9,7 @@ import com.clinica.agendamento.repository.RegiaoRepository;
 import com.clinica.agendamento.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class AcsController {
     private final RegiaoRepository regiaoRepository;
     private final UsuarioRepository usuarioRepository;
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Acs> criar(@RequestBody AcsRequest request) {
         Regiao regiao = regiaoRepository.findById(request.regiaoId())
@@ -32,17 +34,21 @@ public class AcsController {
 
         Acs acs = new Acs();
         acs.setNome(request.nome());
+        acs.setTelefone(request.telefone());
+        acs.setMicroarea(request.microarea());
         acs.setRegiao(regiao);
         acs.setUsuario(usuario);
 
         return ResponseEntity.ok(acsRepository.save(acs));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping
     public ResponseEntity<List<Acs>> listarTodos() {
         return ResponseEntity.ok(acsRepository.findAll());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/{id}")
     public ResponseEntity<Acs> buscarPorId(@PathVariable Long id) {
         return acsRepository.findById(id)
@@ -50,6 +56,7 @@ public class AcsController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (acsRepository.existsById(id)) {
@@ -59,6 +66,7 @@ public class AcsController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @PutMapping("/{acsId}/regiao/{regiaoId}")
     public ResponseEntity<Acs> associarRegiao(
             @PathVariable Long acsId,

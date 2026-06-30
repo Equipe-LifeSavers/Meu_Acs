@@ -44,20 +44,15 @@ UBS acompanha indicadores e gera relatórios
 
 ------------------------------ Fluxograma ------------------------------
 
-```flowchart TD
-    A[Login] --> B{Tipo de Usuário}
-
-    B -->|ACS| C[Selecionar Região]
-    C --> D[Cadastrar Residência]
-    D --> E[Cadastrar Família]
-    E --> F[Cadastrar Moradores]
-    F --> G[Registrar Visita]
-    G --> H[Enviar Dados para UBS]
-
-    B -->|UBS| I[Visualizar Dashboard]
-    H --> I
-    I --> J[Consultar Relatórios]
-    J --> K[Analisar Indicadores]
+```mermaid
+flowchart TD
+A[Login] --> B[Selecionar Região]
+B --> C[Cadastrar Residência]
+C --> D[Cadastrar Família]
+D --> E[Cadastrar Moradores]
+E --> F[Registrar Visita]
+F --> G[Enviar Dados]
+G --> H[UBS Analisa Relatórios]
 ```
 
 ------------------------------ Requisitos Funcionais -----------------------------

@@ -28,11 +28,11 @@ public class UsuarioController {
 
         Usuario usuario = new Usuario();
 
-        usuario.setNome(request.getNome());
-        usuario.setEmail(request.getEmail());
+        usuario.setNome(request.nome());
+        usuario.setEmail(request.email());
         usuario.setSenha(
-                passwordEncoder.encode(request.getSenha()));
-        usuario.setPerfil(request.getPerfil());
+                passwordEncoder.encode(request.senha()));
+        usuario.setPerfil(request.perfil());
 
         return ResponseEntity.ok(
                 usuarioRepository.save(usuario));

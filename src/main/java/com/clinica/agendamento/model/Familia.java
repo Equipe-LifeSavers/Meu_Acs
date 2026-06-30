@@ -1,10 +1,13 @@
 package com.clinica.agendamento.model;
 
+import java.util.ArrayList;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
 
 @Entity
 @Table(name = "familias")
@@ -22,8 +25,10 @@ public class Familia {
     @JoinColumn(name = "residencia_id", nullable = false)
     private Residencia residencia;
 
+    @OneToMany(mappedBy = "familia", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Morador> moradores = new ArrayList<>();
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsavel_id")
     private Morador responsavel;
-
 }

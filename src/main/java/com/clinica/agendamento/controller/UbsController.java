@@ -21,10 +21,10 @@ public class UbsController {
     @PostMapping
     public ResponseEntity<Ubs> criar(@RequestBody UbsRequest request) {
         Ubs ubs = new Ubs();
-        ubs.setNome(request.getNome());
-        ubs.setEndereco(request.getEndereco());
-        ubs.setTelefone(request.getTelefone());
-        ubs.setEmail(request.getEmail());
+        ubs.setNome(request.nome());
+        ubs.setEndereco(request.endereco());
+        ubs.setTelefone(request.telefone());
+        ubs.setEmail(request.email());
         return ResponseEntity.ok(ubsRepository.save(ubs));
     }
 

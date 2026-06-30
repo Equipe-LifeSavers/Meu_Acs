@@ -24,12 +24,12 @@ public class RegiaoController {
     @PostMapping
     public ResponseEntity<Regiao> criar(@RequestBody RegiaoRequest request) {
 
-        Ubs ubs = ubsRepository.findById(request.getUbsId())
+        Ubs ubs = ubsRepository.findById(request.ubsId())
                 .orElseThrow(() -> new RuntimeException("UBS não encontrada"));
 
         Regiao regiao = new Regiao();
-        regiao.setNomeArea(request.getNomeArea());
-        regiao.setObservacao(request.getObservacao());
+        regiao.setNomeArea(request.nomeArea());
+        regiao.setObservacao(request.observacao());
         regiao.setUbs(ubs);
 
         return ResponseEntity.ok(regiaoRepository.save(regiao));

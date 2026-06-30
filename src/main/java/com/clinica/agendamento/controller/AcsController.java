@@ -26,16 +26,16 @@ public class AcsController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<Acs> criar(@RequestBody AcsRequest request) {
-        Regiao regiao = regiaoRepository.findById(request.getRegiaoId())
+        Regiao regiao = regiaoRepository.findById(request.regiaoId())
                 .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
+        Usuario usuario = usuarioRepository.findById(request.usuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         Acs acs = new Acs();
-        acs.setNome(request.getNome());
-        acs.setTelefone(request.getTelefone());
-        acs.setMicroarea(request.getMicroarea());
+        acs.setNome(request.nome());
+        acs.setTelefone(request.telefone());
+        acs.setMicroarea(request.microarea());
         acs.setRegiao(regiao);
         acs.setUsuario(usuario);
 

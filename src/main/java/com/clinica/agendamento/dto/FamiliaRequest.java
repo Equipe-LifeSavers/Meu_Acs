@@ -1,14 +1,12 @@
 package com.clinica.agendamento.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 
-@Getter
-@Setter
-public class FamiliaRequest {
+public record FamiliaRequest(
 
-    @NotNull(message = "O ID da residencia é obrigatório")
-    private Long residenciaId;
-    
-    private Long responsavelId;
+        @NotNull(message = "O ID da residência é obrigatório") Long residenciaId,
+
+        Long responsavelId
+
+) {
 }

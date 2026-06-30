@@ -1,13 +1,4 @@
 package com.clinica.agendamento.dto;
-import lombok.*;
 
-@Getter
-@Setter
-public class RegiaoRequest {
-
-    private String nomeArea;
-
-    private String observacao;
-
-    private Long ubsId; 
+public record RegiaoRequest(String nomeArea, String observacao, Long ubsId) {
 }

@@ -44,7 +44,7 @@ UBS acompanha indicadores e gera relatórios
 
 ------------------------------ Fluxograma ------------------------------
 
-flowchart TD
+```flowchart TD
     A[Login] --> B{Tipo de Usuário}
 
     B -->|ACS| C[Selecionar Região]
@@ -58,6 +58,7 @@ flowchart TD
     H --> I
     I --> J[Consultar Relatórios]
     J --> K[Analisar Indicadores]
+```
 
 ------------------------------ Requisitos Funcionais -----------------------------
 

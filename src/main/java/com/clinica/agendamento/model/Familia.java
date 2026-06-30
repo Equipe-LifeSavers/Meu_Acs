@@ -31,4 +31,14 @@ public class Familia {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsavel_id")
     private Morador responsavel;
+
+    public void adicionarMorador(Morador morador) {
+        moradores.add(morador);
+        morador.setFamilia(this);
+    }
+
+    public void removerMorador(Morador morador) {
+        moradores.remove(morador);
+        morador.setFamilia(null);
+    }
 }

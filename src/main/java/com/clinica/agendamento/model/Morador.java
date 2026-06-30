@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "moradores")
@@ -34,7 +35,14 @@ public class Morador {
     @Column(length = 20)
     private String telefone;
 
+    @Column(name = "ultima_atualizacao")
+    private LocalDateTime ultimaAtualizacao;
+
+    @Column(name = "atualizado_por")
+    private String atualizadoPor;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familia_id", nullable = false)
     private Familia familia;
+
 }

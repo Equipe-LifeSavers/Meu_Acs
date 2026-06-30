@@ -46,13 +46,26 @@ UBS acompanha indicadores e gera relatórios
 
 ```mermaid
 flowchart TD
-A[Login] --> B[Selecionar Região]
-B --> C[Cadastrar Residência]
-C --> D[Cadastrar Família]
-D --> E[Cadastrar Moradores]
-E --> F[Registrar Visita]
-F --> G[Enviar Dados]
-G --> H[UBS Analisa Relatórios]
+    A([Início]) --> B[Realizar Login]
+    B --> C{Tipo de Usuário}
+
+    %% Fluxo ACS
+    C -->|ACS| D[Selecionar Região]
+    D --> E[Cadastrar Residência]
+    E --> F[Cadastrar Família]
+    F --> G[Cadastrar Moradores]
+    G --> H[Registrar Visita Domiciliar]
+    H --> I[Enviar Dados para a UBS]
+
+    %% Fluxo UBS
+    C -->|UBS| J[Acessar Dashboard]
+
+    %% União dos fluxos
+    I --> J
+    J --> K[Visualizar Relatórios]
+    K --> L[Consultar Indicadores por Região]
+    L --> M[Analisar Demandas]
+    M --> N([Fim])
 ```
 
 ------------------------------ Requisitos Funcionais -----------------------------

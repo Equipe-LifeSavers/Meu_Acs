@@ -1,11 +1,15 @@
 package com.clinica.agendamento.model;
 
 import com.clinica.agendamento.enums.Sexo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDate;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "moradores")
@@ -44,5 +48,9 @@ public class Morador {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "familia_id", nullable = false)
     private Familia familia;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "morador", cascade = CascadeType.ALL)
+    private List<Visita> visitas = new ArrayList<>();
 
 }

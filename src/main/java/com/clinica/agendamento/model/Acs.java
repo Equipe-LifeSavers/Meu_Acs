@@ -1,5 +1,10 @@
 package com.clinica.agendamento.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,5 +36,9 @@ public class Acs {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "acs")
+    private List<Visita> visitas = new ArrayList<>();
 
 }

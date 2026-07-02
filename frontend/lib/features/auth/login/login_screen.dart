@@ -186,9 +186,9 @@ class _LoginLeftPanel extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  const Color.fromARGB(255, 4, 85, 8).withValues(alpha: 1),
-                  const Color.fromARGB(255, 11, 92, 15).withValues(alpha: 0.88),
-                  const Color(0xFF063B2E).withValues(alpha: 0.96),
+                  AppColors.primaryDark.withValues(alpha: 1),
+                  AppColors.secondary.withValues(alpha: 0.88),
+                  AppColors.secondary.withValues(alpha: 0.96),
                 ],
               ),
             ),
@@ -204,7 +204,7 @@ class _LoginLeftPanel extends StatelessWidget {
             height: 280,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.06),
+              color: AppColors.white.withValues(alpha: 0.06),
             ),
           ),
         ),
@@ -218,7 +218,7 @@ class _LoginLeftPanel extends StatelessWidget {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF063B2E).withValues(alpha: 0.04),
+              color: AppColors.white.withValues(alpha: 0.04),
             ),
           ),
         ),
@@ -231,7 +231,7 @@ class _LoginLeftPanel extends StatelessWidget {
           child: Container(
             height: 150,
             decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32).withValues(alpha: 0.55),
+              color: AppColors.primaryDark.withValues(alpha: 0.55),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(100),
@@ -248,7 +248,7 @@ class _LoginLeftPanel extends StatelessWidget {
           child: Container(
             height: 140,
             decoration: BoxDecoration(
-              color: const Color(0xFF2E7D32).withValues(alpha: 0.45),
+              color: AppColors.primaryDark.withValues(alpha: 0.45),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(100),
@@ -301,7 +301,7 @@ class _LoginLeftPanel extends StatelessWidget {
                           ),
                           TextSpan(
                             text: 'ACS',
-                            style: TextStyle(color: Color(0xFF95D12F)),
+                            style: TextStyle(color: AppColors.primaryDark),
                           ),
                         ],
                       ),
@@ -324,7 +324,7 @@ class _LoginLeftPanel extends StatelessWidget {
                       width: 150,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF95D12F),
+                        color: AppColors.primaryDark,
                         borderRadius: BorderRadius.circular(999),
                       ),
                     ),

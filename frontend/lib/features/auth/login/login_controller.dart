@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../core/services/session_service.dart';
 
 class LoginController {
   final cpfController = TextEditingController();
@@ -9,10 +10,15 @@ class LoginController {
 
   Future<bool> login() async {
     final usuario = await _authRepository.login(
-      cpf: cpfController.text.trim(),
-      senha: passwordController.text.trim(),
+      cpf: cpfController.text,
+      senha: passwordController.text,
     );
-    return usuario != null;
+
+    if (usuario != null) {
+      SessionService.instance.login(usuario);
+      return true;
+    }
+    return false;
   }
 
   void dispose() {

@@ -27,4 +27,10 @@ public interface VisitaRepository extends JpaRepository<Visita, Long> {
 
     List<Visita> findByMoradorFamiliaIdOrderByDataDesc(Long familiaId);
 
+    List<Visita> findByAcsRegiaoId(Long regiaoId);
+
+    List<Visita> findByAcsRegiaoUbsId(Long ubsId);
+
+    List<Visita> findByDataBetween(LocalDate inicio, LocalDate fim);
+
 }

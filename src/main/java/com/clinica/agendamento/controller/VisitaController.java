@@ -1,5 +1,6 @@
 package com.clinica.agendamento.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,168 +26,239 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class VisitaController {
 
-    private final VisitaRepository visitaRepository;
-    private final MoradorRepository moradorRepository;
-    private final AcsRepository acsRepository;
+        private final VisitaRepository visitaRepository;
+        private final MoradorRepository moradorRepository;
+        private final AcsRepository acsRepository;
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @PostMapping
-    public ResponseEntity<VisitaResponse> criar(
-            @Valid @RequestBody VisitaRequest dto) {
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @PostMapping
+        public ResponseEntity<VisitaResponse> criar(
+                        @Valid @RequestBody VisitaRequest dto) {
 
-        Morador morador = moradorRepository.findById(dto.moradorId())
-                .orElseThrow(() -> new RuntimeException("Morador não encontrado"));
+                Morador morador = moradorRepository.findById(dto.moradorId())
+                                .orElseThrow(() -> new RuntimeException("Morador não encontrado"));
 
-        Acs acs = acsRepository.findById(dto.acsId())
-                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+                Acs acs = acsRepository.findById(dto.acsId())
+                                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
 
-        Visita visita = new Visita();
+                Visita visita = new Visita();
 
-        visita.setMorador(morador);
-        visita.setAcs(acs);
-        visita.setData(dto.data());
-        visita.setObservacoes(dto.observacoes());
-        visita.setVisitaRealizada(dto.visitaRealizada());
-        visita.setDataCadastro(LocalDateTime.now());
-        visita.setUltimaAtualizacao(LocalDateTime.now());
+                visita.setMorador(morador);
+                visita.setAcs(acs);
+                visita.setData(dto.data());
+                visita.setObservacoes(dto.observacoes());
+                visita.setVisitaRealizada(dto.visitaRealizada());
+                visita.setDataCadastro(LocalDateTime.now());
+                visita.setUltimaAtualizacao(LocalDateTime.now());
 
-        visita = visitaRepository.save(visita);
+                visita = visitaRepository.save(visita);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(toResponse(visita));
-    }
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(toResponse(visita));
+        }
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @GetMapping
-    public List<VisitaResponse> listar() {
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping
+        public List<VisitaResponse> listar() {
 
-        return visitaRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-    }
+                return visitaRepository.findAll()
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @GetMapping("/{id}")
-    public ResponseEntity<VisitaResponse> buscar(
-            @PathVariable Long id) {
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/{id}")
+        public ResponseEntity<VisitaResponse> buscar(
+                        @PathVariable Long id) {
 
-        return visitaRepository.findById(id)
-                .map(this::toResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @PutMapping("/{id}")
-    public ResponseEntity<VisitaResponse> atualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody VisitaRequest dto) {
-
-        return visitaRepository.findById(id)
-                .map(visita -> {
-
-                    Morador morador = moradorRepository.findById(dto.moradorId())
-                            .orElseThrow(() -> new RuntimeException("Morador não encontrado"));
-
-                    Acs acs = acsRepository.findById(dto.acsId())
-                            .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
-
-                    visita.setMorador(morador);
-                    visita.setAcs(acs);
-                    visita.setData(dto.data());
-                    visita.setObservacoes(dto.observacoes());
-                    visita.setVisitaRealizada(dto.visitaRealizada());
-                    visita.setUltimaAtualizacao(LocalDateTime.now());
-
-                    return ResponseEntity.ok(
-                            toResponse(
-                                    visitaRepository.save(visita)));
-
-                }).orElse(ResponseEntity.notFound().build());
-
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(
-            @PathVariable Long id) {
-
-        if (!visitaRepository.existsById(id)) {
-
-            return ResponseEntity.notFound().build();
+                return visitaRepository.findById(id)
+                                .map(this::toResponse)
+                                .map(ResponseEntity::ok)
+                                .orElse(ResponseEntity.notFound().build());
 
         }
 
-        visitaRepository.deleteById(id);
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @PutMapping("/{id}")
+        public ResponseEntity<VisitaResponse> atualizar(
+                        @PathVariable Long id,
+                        @Valid @RequestBody VisitaRequest dto) {
 
-        return ResponseEntity.noContent().build();
+                return visitaRepository.findById(id)
+                                .map(visita -> {
 
-    }
+                                        Morador morador = moradorRepository.findById(dto.moradorId())
+                                                        .orElseThrow(() -> new RuntimeException(
+                                                                        "Morador não encontrado"));
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @GetMapping("/morador/{id}")
-    public List<VisitaResponse> historicoMorador(
-            @PathVariable Long id) {
+                                        Acs acs = acsRepository.findById(dto.acsId())
+                                                        .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
 
-        return visitaRepository.findByMoradorId(id)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+                                        visita.setMorador(morador);
+                                        visita.setAcs(acs);
+                                        visita.setData(dto.data());
+                                        visita.setObservacoes(dto.observacoes());
+                                        visita.setVisitaRealizada(dto.visitaRealizada());
+                                        visita.setUltimaAtualizacao(LocalDateTime.now());
 
-    }
+                                        return ResponseEntity.ok(
+                                                        toResponse(
+                                                                        visitaRepository.save(visita)));
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @GetMapping("/acs/{id}")
-    public List<VisitaResponse> listarPorAcs(
-            @PathVariable Long id) {
+                                }).orElse(ResponseEntity.notFound().build());
 
-        return visitaRepository.findByAcsId(id)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        }
 
-    }
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @DeleteMapping("/{id}")
+        public ResponseEntity<Void> excluir(
+                        @PathVariable Long id) {
 
-    @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
-    @GetMapping("/familia/{id}")
-    public List<VisitaResponse> listarPorFamilia(
-            @PathVariable Long id) {
+                if (!visitaRepository.existsById(id)) {
 
-        return visitaRepository.findByMoradorFamiliaId(id)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+                        return ResponseEntity.notFound().build();
 
-    }
+                }
 
-    private VisitaResponse toResponse(Visita visita) {
+                visitaRepository.deleteById(id);
 
-        return new VisitaResponse(
+                return ResponseEntity.noContent().build();
 
-                visita.getId(),
+        }
 
-                visita.getMorador().getId(),
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/acs/{id}")
+        public List<VisitaResponse> listarPorAcs(
+                        @PathVariable Long id) {
 
-                visita.getMorador().getNome(),
+                return visitaRepository.findByAcsId(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
 
-                visita.getMorador().getFamilia().getId(),
+        }
 
-                visita.getAcs().getId(),
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/familia/{id}")
+        public List<VisitaResponse> listarPorFamilia(
+                        @PathVariable Long id) {
 
-                visita.getAcs().getNome(),
+                return visitaRepository.findByMoradorFamiliaId(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
 
-                visita.getData(),
+        }
 
-                visita.getObservacoes(),
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/regiao/{id}")
+        public List<VisitaResponse> listarPorRegiao(
+                        @PathVariable Long id) {
 
-                visita.getVisitaRealizada(),
+                return visitaRepository.findByAcsRegiaoId(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
 
-                visita.getDataCadastro(),
+        @PreAuthorize("hasAnyRole('ADMIN','UBS')")
+        @GetMapping("/ubs/{id}")
+        public List<VisitaResponse> listarPorUbs(
+                        @PathVariable Long id) {
 
-                visita.getUltimaAtualizacao());
+                return visitaRepository.findByAcsRegiaoUbsId(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
 
-    }
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/historico")
+        public List<VisitaResponse> historico() {
+
+                return visitaRepository.findAllByOrderByDataDesc()
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
+
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/historico/morador/{id}")
+        public List<VisitaResponse> historicoMorador(
+                        @PathVariable Long id) {
+
+                return visitaRepository
+                                .findByMoradorIdOrderByDataDesc(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
+
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/historico/acs/{id}")
+        public List<VisitaResponse> historicoAcs(
+                        @PathVariable Long id) {
+
+                return visitaRepository
+                                .findByAcsIdOrderByDataDesc(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
+
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
+        @GetMapping("/historico/familia/{id}")
+        public List<VisitaResponse> historicoFamilia(
+                        @PathVariable Long id) {
+
+                return visitaRepository
+                                .findByMoradorFamiliaIdOrderByDataDesc(id)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
+
+        @PreAuthorize("hasAnyRole('ADMIN','UBS')")
+        @GetMapping("/periodo")
+        public List<VisitaResponse> listarPorPeriodo(
+
+                        @RequestParam LocalDate inicio,
+                        @RequestParam LocalDate fim) {
+
+                return visitaRepository
+                                .findByDataBetween(inicio, fim)
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
+        }
+
+        private VisitaResponse toResponse(Visita visita) {
+
+                return new VisitaResponse(
+
+                                visita.getId(),
+
+                                visita.getMorador().getId(),
+
+                                visita.getMorador().getNome(),
+
+                                visita.getMorador().getFamilia().getId(),
+
+                                visita.getAcs().getId(),
+
+                                visita.getAcs().getNome(),
+
+                                visita.getData(),
+
+                                visita.getObservacoes(),
+
+                                visita.getVisitaRealizada(),
+
+                                visita.getDataCadastro(),
+
+                                visita.getUltimaAtualizacao());
+
+        }
 
 }

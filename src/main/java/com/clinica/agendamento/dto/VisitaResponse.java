@@ -2,30 +2,33 @@ package com.clinica.agendamento.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.clinica.agendamento.enums.Demanda;
 
 public record VisitaResponse(
 
-        Long id,
+                Long id,
 
-        Long moradorId,
+                Long moradorId,
 
-        String nomeMorador,
+                String nomeMorador,
 
-        Long familiaId,
+                Long familiaId,
 
-        Long acsId,
+                Long acsId,
 
-        String nomeAcs,
+                String nomeAcs,
 
-        LocalDate data,
+                LocalDate data,
 
-        String observacoes,
+                String observacoes,
 
-        Boolean visitaRealizada,
+                Demanda demanda,
 
-        LocalDateTime dataCadastro,
+                Boolean visitaRealizada,
 
-        LocalDateTime ultimaAtualizacao
+                LocalDateTime dataCadastro,
+
+                LocalDateTime ultimaAtualizacao
 
 ) {
 }

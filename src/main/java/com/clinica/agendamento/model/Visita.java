@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.clinica.agendamento.enums.Demanda;
+
 @Entity
 @Table(name = "visitas")
 @Getter
@@ -31,6 +33,10 @@ public class Visita {
 
     @Column(length = 1000)
     private String observacoes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Demanda demanda;
 
     @Column(nullable = false)
     private Boolean visitaRealizada;

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.clinica.agendamento.model.Visita;
+import com.clinica.agendamento.enums.Demanda;
 
 public interface VisitaRepository extends JpaRepository<Visita, Long> {
 
@@ -32,5 +33,13 @@ public interface VisitaRepository extends JpaRepository<Visita, Long> {
     List<Visita> findByAcsRegiaoUbsId(Long ubsId);
 
     List<Visita> findByDataBetween(LocalDate inicio, LocalDate fim);
+
+    long countByVisitaRealizadaTrue();
+
+    long countByVisitaRealizadaFalse();
+
+    long countByDemanda(Demanda demanda);
+
+    List<Visita> findByDemanda(Demanda demanda);
 
 }

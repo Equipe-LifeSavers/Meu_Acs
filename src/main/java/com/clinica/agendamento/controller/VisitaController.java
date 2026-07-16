@@ -47,6 +47,7 @@ public class VisitaController {
                 visita.setAcs(acs);
                 visita.setData(dto.data());
                 visita.setObservacoes(dto.observacoes());
+                visita.setDemanda(dto.demanda());
                 visita.setVisitaRealizada(dto.visitaRealizada());
                 visita.setDataCadastro(LocalDateTime.now());
                 visita.setUltimaAtualizacao(LocalDateTime.now());
@@ -99,6 +100,7 @@ public class VisitaController {
                                         visita.setAcs(acs);
                                         visita.setData(dto.data());
                                         visita.setObservacoes(dto.observacoes());
+                                        visita.setDemanda(dto.demanda());
                                         visita.setVisitaRealizada(dto.visitaRealizada());
                                         visita.setUltimaAtualizacao(LocalDateTime.now());
 
@@ -252,6 +254,8 @@ public class VisitaController {
                                 visita.getData(),
 
                                 visita.getObservacoes(),
+
+                                visita.getDemanda(),
 
                                 visita.getVisitaRealizada(),
 

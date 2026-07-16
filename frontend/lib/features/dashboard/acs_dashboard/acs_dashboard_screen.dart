@@ -6,18 +6,21 @@ import 'widgets/dashboard_sidebar.dart';
 import '../../../../core/services/session_service.dart';
 
 class AcsDashboardScreen extends StatelessWidget {
-  AcsDashboardScreen({super.key});
-
-  final controller = AcsDashboardController();
+  const AcsDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = AcsDashboardController();
+    
     return AppScaffold(
       sidebar: const DashboardSidebar(),
 
       body: Column(
         children: [
-          DashboardHeader(saudacao: controller.saudacao, nome: SessionService.instance.usuario!.nome,),
+          DashboardHeader(
+            saudacao: controller.saudacao,
+            nome: SessionService.instance.usuario!.nome,
+          ),
 
           const Expanded(
             child: Center(child: Text('Área principal do Dashboard')),

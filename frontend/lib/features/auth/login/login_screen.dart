@@ -4,6 +4,9 @@ import '../../../core/constants/app_sizes.dart';
 import '../../../core/constants/app_strings.dart';
 import 'login_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/app_routes.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,11 +31,21 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submitLogin() {
-    if (controller.formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login validado com sucesso!.')),
-      );
+  Future<void> _submitLogin() async {
+    if (!(controller.formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    final sucesso = await controller.login();
+
+    if (!mounted) return;
+
+    if (sucesso) {
+      context.go(AppRoutes.dashboard);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('CPF ou senha inválidos.')));
     }
   }
 

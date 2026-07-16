@@ -30,7 +30,7 @@ class DashboardHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$saudacao, $nome 👋',
+                  '$saudacao, $nome!',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
 

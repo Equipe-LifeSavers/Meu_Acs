@@ -10,4 +10,6 @@ public interface AcsRepository extends JpaRepository<Acs, Long> {
 
     Optional<Acs> findByUsuarioEmail(String email);
 
+    long countByRegiaoId(Long regiaoId);
+
 }

@@ -42,4 +42,12 @@ public interface VisitaRepository extends JpaRepository<Visita, Long> {
 
     List<Visita> findByDemanda(Demanda demanda);
 
+    long countByAcsRegiaoId(Long regiaoId);
+
+    long countByAcsRegiaoIdAndVisitaRealizadaTrue(Long regiaoId);
+
+    long countByAcsRegiaoIdAndVisitaRealizadaFalse(Long regiaoId);
+
+    long countByAcsRegiaoIdAndDemanda(Long regiaoId, Demanda demanda);
+
 }

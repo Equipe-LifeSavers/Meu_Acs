@@ -2,6 +2,8 @@ package com.clinica.agendamento.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ import com.clinica.agendamento.repository.MoradorRepository;
 import com.clinica.agendamento.repository.RegiaoRepository;
 import com.clinica.agendamento.repository.ResidenciaRepository;
 import com.clinica.agendamento.repository.VisitaRepository;
+import com.clinica.agendamento.service.PdfExportService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +31,7 @@ public class CoberturaController {
     private final FamiliaRepository familiaRepository;
     private final MoradorRepository moradorRepository;
     private final VisitaRepository visitaRepository;
+    private final PdfExportService pdfExportService;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/regioes")
@@ -50,6 +54,39 @@ public class CoberturaController {
                 .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
         return ResponseEntity.ok(montarCobertura(regiao));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
+    @GetMapping("/regioes/pdf")
+    public ResponseEntity<byte[]> coberturaGeralPdf() {
+
+        List<CoberturaRegiaoResponse> cobertura = regiaoRepository.findAll()
+                .stream()
+                .map(this::montarCobertura)
+                .toList();
+
+        byte[] pdf = pdfExportService.gerarPdfCobertura(cobertura);
+
+        return responderPdf(pdf, "cobertura-territorial.pdf");
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
+    @GetMapping("/regioes/{regiaoId}/pdf")
+    public ResponseEntity<byte[]> coberturaPorRegiaoPdf(@PathVariable Long regiaoId) {
+
+        Regiao regiao = regiaoRepository.findById(regiaoId)
+                .orElseThrow(() -> new RuntimeException("Região não encontrada"));
+
+        byte[] pdf = pdfExportService.gerarPdfCobertura(List.of(montarCobertura(regiao)));
+
+        return responderPdf(pdf, "cobertura-regiao-" + regiaoId + ".pdf");
+    }
+
+    private ResponseEntity<byte[]> responderPdf(byte[] pdf, String nomeArquivo) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nomeArquivo)
+                .body(pdf);
     }
 
     private CoberturaRegiaoResponse montarCobertura(Regiao regiao) {

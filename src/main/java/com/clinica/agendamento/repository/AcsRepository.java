@@ -12,4 +12,6 @@ public interface AcsRepository extends JpaRepository<Acs, Long> {
 
     long countByRegiaoId(Long regiaoId);
 
+    long countByRegiaoUbsId(Long ubsId);
+
 }

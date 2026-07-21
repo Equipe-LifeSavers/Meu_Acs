@@ -2,6 +2,8 @@ package com.clinica.agendamento.controller;
 
 import com.clinica.agendamento.dto.DashboardResponse;
 import com.clinica.agendamento.dto.IndicadorDemandaResponse;
+import com.clinica.agendamento.dto.UbsResumoResponse;
+import com.clinica.agendamento.model.Ubs;
 import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.FamiliaRepository;
 import com.clinica.agendamento.repository.MoradorRepository;
@@ -10,6 +12,7 @@ import com.clinica.agendamento.repository.ResidenciaRepository;
 import com.clinica.agendamento.repository.UbsRepository;
 import com.clinica.agendamento.repository.VisitaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,6 +73,68 @@ public class DashboardController {
                         "Visitas pendentes",
                         visitaRepository.countByVisitaRealizadaFalse()
                 )
+
+        );
+    }
+
+    @GetMapping("/gerencial")
+    @PreAuthorize("hasAnyRole('ADMIN','UBS')")
+    public ResponseEntity<List<UbsResumoResponse>> dashboardGerencial() {
+
+        List<UbsResumoResponse> resumo = ubsRepository.findAll()
+                .stream()
+                .map(this::montarResumo)
+                .toList();
+
+        return ResponseEntity.ok(resumo);
+    }
+
+    @GetMapping("/gerencial/{ubsId}")
+    @PreAuthorize("hasAnyRole('ADMIN','UBS')")
+    public ResponseEntity<UbsResumoResponse> dashboardGerencialPorUbs(
+            @PathVariable Long ubsId) {
+
+        Ubs ubs = ubsRepository.findById(ubsId)
+                .orElseThrow(() -> new RuntimeException("UBS não encontrada"));
+
+        return ResponseEntity.ok(montarResumo(ubs));
+    }
+
+    private UbsResumoResponse montarResumo(Ubs ubs) {
+
+        Long ubsId = ubs.getId();
+
+        long totalVisitas = visitaRepository.countByAcsRegiaoUbsId(ubsId);
+        long visitasRealizadas = visitaRepository.countByAcsRegiaoUbsIdAndVisitaRealizadaTrue(ubsId);
+        long visitasPendentes = visitaRepository.countByAcsRegiaoUbsIdAndVisitaRealizadaFalse(ubsId);
+
+        double percentualCobertura = totalVisitas == 0
+                ? 0.0
+                : (visitasRealizadas * 100.0) / totalVisitas;
+
+        return new UbsResumoResponse(
+
+                ubsId,
+
+                ubs.getNome(),
+
+                regiaoRepository.countByUbsId(ubsId),
+
+                acsRepository.countByRegiaoUbsId(ubsId),
+
+                residenciaRepository.countByRegiaoUbsId(ubsId),
+
+                familiaRepository.countByResidenciaRegiaoUbsId(ubsId),
+
+                moradorRepository.countByFamiliaResidenciaRegiaoUbsId(ubsId),
+
+                totalVisitas,
+
+                visitasRealizadas,
+
+                visitasPendentes,
+
+                Math.round(percentualCobertura * 100.0) / 100.0
 
         );
     }

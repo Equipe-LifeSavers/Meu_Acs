@@ -9,4 +9,6 @@ public interface ResidenciaRepository extends JpaRepository<Residencia, Long> {
 
     List<Residencia> findByRegiaoId(Long regiaoId);
 
+    long countByRegiaoUbsId(Long ubsId);
+
 }

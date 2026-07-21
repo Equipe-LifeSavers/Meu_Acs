@@ -50,4 +50,10 @@ public interface VisitaRepository extends JpaRepository<Visita, Long> {
 
     long countByAcsRegiaoIdAndDemanda(Long regiaoId, Demanda demanda);
 
+    long countByAcsRegiaoUbsId(Long ubsId);
+
+    long countByAcsRegiaoUbsIdAndVisitaRealizadaTrue(Long ubsId);
+
+    long countByAcsRegiaoUbsIdAndVisitaRealizadaFalse(Long ubsId);
+
 }

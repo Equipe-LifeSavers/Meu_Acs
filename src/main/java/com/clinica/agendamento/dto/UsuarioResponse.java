@@ -5,10 +5,14 @@ import com.clinica.agendamento.enums.Perfil;
 public record UsuarioResponse(
 
         Long id,
+
         String nome,
+
         String email,
+
         Perfil perfil,
-        Boolean ativo
+
+        boolean ativo
 
 ) {
 }

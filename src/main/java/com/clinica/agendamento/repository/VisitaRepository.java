@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.clinica.agendamento.model.Visita;
 import com.clinica.agendamento.enums.Demanda;
@@ -49,5 +51,23 @@ public interface VisitaRepository extends JpaRepository<Visita, Long> {
     long countByAcsRegiaoIdAndVisitaRealizadaFalse(Long regiaoId);
 
     long countByAcsRegiaoIdAndDemanda(Long regiaoId, Demanda demanda);
+
+    long countByAcsRegiaoUbsId(Long ubsId);
+
+    long countByAcsRegiaoUbsIdAndVisitaRealizadaTrue(Long ubsId);
+
+    long countByAcsRegiaoUbsIdAndVisitaRealizadaFalse(Long ubsId);
+
+    @Query(
+        "SELECT COUNT(DISTINCT v.morador.id) FROM Visita v " +
+        "WHERE v.morador.familia.residencia.regiao.id = :regiaoId " +
+        "AND v.visitaRealizada = true")
+    long countMoradoresVisitadosPorRegiao(@Param("regiaoId") Long regiaoId);
+
+    @Query(
+        "SELECT COUNT(DISTINCT v.morador.familia.id) FROM Visita v " +
+        "WHERE v.morador.familia.residencia.regiao.id = :regiaoId " +
+        "AND v.visitaRealizada = true")
+    long countFamiliasComVisitaPorRegiao(@Param("regiaoId") Long regiaoId);
 
 }

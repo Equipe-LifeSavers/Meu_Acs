@@ -8,4 +8,6 @@ public interface FamiliaRepository extends JpaRepository<Familia, Long> {
 
     List<Familia> findByResidenciaRegiaoId(Long regiaoId);
 
+    long countByResidenciaRegiaoUbsId(Long ubsId);
+    
 }

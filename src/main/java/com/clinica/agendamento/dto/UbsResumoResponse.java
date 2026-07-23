@@ -1,24 +1,28 @@
 package com.clinica.agendamento.dto;
 
-public record DashboardResponse(
+public record UbsResumoResponse(
 
-        Long totalUbs,
-
+        Long ubsId,
+ 
+        String nomeUbs,
+ 
         Long totalRegioes,
-
+ 
         Long totalAcs,
-
+ 
         Long totalResidencias,
-
+ 
         Long totalFamilias,
-
+ 
         Long totalMoradores,
-
+ 
         Long totalVisitas,
-
+ 
         Long visitasRealizadas,
+ 
+        Long visitasPendentes,
+ 
+        Double percentualCobertura
 
-        Long visitasPendentes
-
-) {
+) {  
 }

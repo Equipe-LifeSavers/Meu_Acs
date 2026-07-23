@@ -1,12 +1,13 @@
 package com.clinica.agendamento.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import com.clinica.agendamento.dto.PerfilRequest;
+import com.clinica.agendamento.dto.AlterarSenhaRequest;
+import com.clinica.agendamento.dto.AtualizarPerfilRequest;
 import com.clinica.agendamento.dto.UsuarioResponse;
 import com.clinica.agendamento.model.Usuario;
 import com.clinica.agendamento.repository.UsuarioRepository;
@@ -22,58 +23,65 @@ public class PerfilController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<UsuarioResponse> meuPerfil(
-            Authentication authentication) {
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
-        Usuario usuario = usuarioRepository
-                .findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
-
-        return ResponseEntity.ok(toResponse(usuario));
+        return ResponseEntity.ok(paraResponse(usuarioLogado));
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PutMapping
-    public ResponseEntity<UsuarioResponse> atualizarPerfil(
-            Authentication authentication,
-            @Valid @RequestBody PerfilRequest request) {
+    public ResponseEntity<?> atualizarPerfil(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @Valid @RequestBody AtualizarPerfilRequest dto) {
 
-        Usuario usuario = usuarioRepository
-                .findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado."));
+        boolean emailEmUso = usuarioRepository.findByEmail(dto.email())
+                .map(u -> !u.getId().equals(usuarioLogado.getId()))
+                .orElse(false);
 
-        if (!usuario.getEmail().equals(request.email())
-                && usuarioRepository.existsByEmail(request.email())) {
-
-            throw new RuntimeException("E-mail já cadastrado.");
+        if (emailEmUso) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Este e-mail já está em uso por outro usuário");
         }
 
-        usuario.setNome(request.nome());
-        usuario.setEmail(request.email());
+        Usuario usuario = usuarioRepository.findById(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (request.senha() != null && !request.senha().isBlank()) {
-            usuario.setSenha(passwordEncoder.encode(request.senha()));
-        }
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
 
         usuario = usuarioRepository.save(usuario);
 
-        return ResponseEntity.ok(toResponse(usuario));
+        return ResponseEntity.ok(paraResponse(usuario));
     }
 
-    private UsuarioResponse toResponse(Usuario usuario) {
+    @PutMapping("/senha")
+    public ResponseEntity<?> alterarSenha(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @Valid @RequestBody AlterarSenhaRequest dto) {
 
+        Usuario usuario = usuarioRepository.findById(usuarioLogado.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(dto.senhaAtual(), usuario.getSenha())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Senha atual incorreta");
+        }
+
+        usuario.setSenha(passwordEncoder.encode(dto.novaSenha()));
+
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    private UsuarioResponse paraResponse(Usuario usuario) {
         return new UsuarioResponse(
-
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getPerfil(),
-                usuario.isAtivo()
-
-        );
-
+                usuario.isAtivo());
     }
 
 }

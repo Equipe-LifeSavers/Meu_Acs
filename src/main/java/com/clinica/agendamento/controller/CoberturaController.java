@@ -1,6 +1,5 @@
 package com.clinica.agendamento.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
@@ -9,9 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.clinica.agendamento.dto.IndicadorDemandaResponse;
-import com.clinica.agendamento.dto.RelatorioRegiaoResponse;
-import com.clinica.agendamento.enums.Demanda;
+import com.clinica.agendamento.dto.CoberturaRegiaoResponse;
 import com.clinica.agendamento.model.Regiao;
 import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.FamiliaRepository;
@@ -24,9 +21,9 @@ import com.clinica.agendamento.service.PdfExportService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/relatorios")
+@RequestMapping("/cobertura")
 @RequiredArgsConstructor
-public class RelatorioController {
+public class CoberturaController {
 
     private final RegiaoRepository regiaoRepository;
     private final AcsRepository acsRepository;
@@ -38,51 +35,51 @@ public class RelatorioController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/regioes")
-    public ResponseEntity<List<RelatorioRegiaoResponse>> relatorioGeral() {
+    public ResponseEntity<List<CoberturaRegiaoResponse>> coberturaGeral() {
 
-        List<RelatorioRegiaoResponse> relatorio = regiaoRepository.findAll()
+        List<CoberturaRegiaoResponse> cobertura = regiaoRepository.findAll()
                 .stream()
-                .map(this::montarRelatorio)
+                .map(this::montarCobertura)
                 .toList();
 
-        return ResponseEntity.ok(relatorio);
+        return ResponseEntity.ok(cobertura);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/regioes/{regiaoId}")
-    public ResponseEntity<RelatorioRegiaoResponse> relatorioPorRegiao(
+    public ResponseEntity<CoberturaRegiaoResponse> coberturaPorRegiao(
             @PathVariable Long regiaoId) {
 
         Regiao regiao = regiaoRepository.findById(regiaoId)
                 .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
-        return ResponseEntity.ok(montarRelatorio(regiao));
+        return ResponseEntity.ok(montarCobertura(regiao));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/regioes/pdf")
-    public ResponseEntity<byte[]> relatorioGeralPdf() {
+    public ResponseEntity<byte[]> coberturaGeralPdf() {
 
-        List<RelatorioRegiaoResponse> relatorio = regiaoRepository.findAll()
+        List<CoberturaRegiaoResponse> cobertura = regiaoRepository.findAll()
                 .stream()
-                .map(this::montarRelatorio)
+                .map(this::montarCobertura)
                 .toList();
 
-        byte[] pdf = pdfExportService.gerarPdfRelatorioRegioes(relatorio);
+        byte[] pdf = pdfExportService.gerarPdfCobertura(cobertura);
 
-        return responderPdf(pdf, "relatorio-regioes.pdf");
+        return responderPdf(pdf, "cobertura-territorial.pdf");
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
     @GetMapping("/regioes/{regiaoId}/pdf")
-    public ResponseEntity<byte[]> relatorioPorRegiaoPdf(@PathVariable Long regiaoId) {
+    public ResponseEntity<byte[]> coberturaPorRegiaoPdf(@PathVariable Long regiaoId) {
 
         Regiao regiao = regiaoRepository.findById(regiaoId)
                 .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
-        byte[] pdf = pdfExportService.gerarPdfRelatorioRegioes(List.of(montarRelatorio(regiao)));
+        byte[] pdf = pdfExportService.gerarPdfCobertura(List.of(montarCobertura(regiao)));
 
-        return responderPdf(pdf, "relatorio-regiao-" + regiaoId + ".pdf");
+        return responderPdf(pdf, "cobertura-regiao-" + regiaoId + ".pdf");
     }
 
     private ResponseEntity<byte[]> responderPdf(byte[] pdf, String nomeArquivo) {
@@ -92,40 +89,57 @@ public class RelatorioController {
                 .body(pdf);
     }
 
-    private RelatorioRegiaoResponse montarRelatorio(Regiao regiao) {
+    private CoberturaRegiaoResponse montarCobertura(Regiao regiao) {
 
         Long regiaoId = regiao.getId();
 
-        List<IndicadorDemandaResponse> demandas = Arrays.stream(Demanda.values())
-                .map(demanda -> new IndicadorDemandaResponse(
-                        demanda.name(),
-                        visitaRepository.countByAcsRegiaoIdAndDemanda(regiaoId, demanda)))
-                .toList();
+        long totalAcs = acsRepository.countByRegiaoId(regiaoId);
+        long totalFamilias = familiaRepository.findByResidenciaRegiaoId(regiaoId).size();
+        long totalMoradores = moradorRepository.countByFamiliaResidenciaRegiaoId(regiaoId);
 
-        return new RelatorioRegiaoResponse(
+        long familiasComVisita = visitaRepository.countFamiliasComVisitaPorRegiao(regiaoId);
+        long moradoresVisitados = visitaRepository.countMoradoresVisitadosPorRegiao(regiaoId);
+
+        double percentualFamilias = totalFamilias == 0
+                ? 0.0
+                : (familiasComVisita * 100.0) / totalFamilias;
+
+        double percentualMoradores = totalMoradores == 0
+                ? 0.0
+                : (moradoresVisitados * 100.0) / totalMoradores;
+
+        double moradoresPorAcs = totalAcs == 0
+                ? 0.0
+                : (double) totalMoradores / totalAcs;
+
+        return new CoberturaRegiaoResponse(
 
                 regiaoId,
 
                 regiao.getNomeArea(),
 
-                regiao.getUbs().getNome(),
-
-                acsRepository.countByRegiaoId(regiaoId),
+                totalAcs,
 
                 (long) residenciaRepository.findByRegiaoId(regiaoId).size(),
 
-                (long) familiaRepository.findByResidenciaRegiaoId(regiaoId).size(),
+                totalFamilias,
 
-                moradorRepository.countByFamiliaResidenciaRegiaoId(regiaoId),
+                familiasComVisita,
 
-                visitaRepository.countByAcsRegiaoId(regiaoId),
+                arredondar(percentualFamilias),
 
-                visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaTrue(regiaoId),
+                totalMoradores,
 
-                visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaFalse(regiaoId),
+                moradoresVisitados,
 
-                demandas
+                arredondar(percentualMoradores),
+
+                arredondar(moradoresPorAcs)
         );
+    }
+
+    private double arredondar(double valor) {
+        return Math.round(valor * 100.0) / 100.0;
     }
 
 }

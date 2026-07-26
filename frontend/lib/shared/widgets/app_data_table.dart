@@ -1,3 +1,4 @@
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 
 class AppDataTable extends StatelessWidget {
@@ -9,21 +10,24 @@ class AppDataTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: DataTable(
-            headingRowHeight: 60,
-            dataRowMinHeight: 60,
-            dataRowMaxHeight: 70,
-            horizontalMargin: 20,
-            columnSpacing: 32,
-            columns: columns,
-            rows: rows,
-          ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: DataTable2(
+          columns: columns,
+          rows: rows,
+
+          minWidth: 1100,
+
+          columnSpacing: 20,
+          horizontalMargin: 16,
+
+          headingRowHeight: 56,
+          dataRowHeight: 64,
+
+          dividerThickness: .6,
+
+          showCheckboxColumn: false,
         ),
       ),
     );

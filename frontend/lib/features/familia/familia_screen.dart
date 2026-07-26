@@ -65,10 +65,9 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
   }
 
   Future<void> adicionarFamilia(FamiliaModel familia) async {
-    setState(() {
-      familias.add(familia);
-      filtrarFamilias(familias, pesquisaController.text);
-    });
+    await controller.adicionarFamilia(familia);
+    await carregarFamilias();
+    filtrarFamilias(familias, pesquisaController.text);
   }
 
   @override
@@ -196,7 +195,7 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
             Expanded(
               child: AppDataTable(
                 columns: const [
-                  DataColumn2(label: Text('Responsável'), size: ColumnSize.L),
+                  DataColumn2(label: Text('Responsável'), size: ColumnSize.M),
                   DataColumn2(label: Text('CPF'), size: ColumnSize.M),
                   DataColumn2(label: Text('Telefone'), size: ColumnSize.M),
                   DataColumn2(label: Text('Endereço'), size: ColumnSize.L),

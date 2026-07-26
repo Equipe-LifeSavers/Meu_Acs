@@ -17,7 +17,7 @@ class AppDataTable extends StatelessWidget {
           columns: columns,
           rows: rows,
 
-          minWidth: 1100,
+          minWidth: 1000,
 
           columnSpacing: 20,
           horizontalMargin: 16,

@@ -150,7 +150,7 @@ class _SidebarItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       child: Material(
-        color: selected ? Colors.white.withOpacity(.15) : Colors.transparent,
+        color: selected ? Colors.white.withValues(alpha: .15) : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: ListTile(
           shape: RoundedRectangleBorder(

@@ -7,4 +7,8 @@ class FamiliaController {
   Future<List<FamiliaModel>> carregarFamilias() async {
     return await _repository.listarFamilias();
   }
+
+  Future<void> adicionarFamilia(FamiliaModel familia) async {
+    await _repository.adicionarFamilia(familia);
+  }
 }

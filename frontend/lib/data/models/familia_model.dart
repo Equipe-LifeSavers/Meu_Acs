@@ -1,3 +1,5 @@
+/// Modelo utilizado pela tela de Famílias.
+/// Será adaptado para consumir os dados da API.
 class FamiliaModel {
   final int id;
   final String responsavel;

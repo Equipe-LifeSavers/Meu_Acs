@@ -5,6 +5,12 @@ class FamiliaService {
   Future<List<FamiliaModel>> listarFamilias() async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    return FamiliaMock.familias;
+    return List.from(FamiliaMock.familias);
+  }
+
+  Future<void> adicionarFamilia(FamiliaModel familia) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    FamiliaMock.familias.add(familia);
   }
 }

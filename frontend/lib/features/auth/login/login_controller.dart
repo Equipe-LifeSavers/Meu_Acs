@@ -16,6 +16,7 @@ class LoginController {
       );
 
       SessionService.instance.login(
+        usuarioLogado: resposta.usuario,
         tokenJwt: resposta.token,
         perfilUsuario: resposta.perfil,
       );

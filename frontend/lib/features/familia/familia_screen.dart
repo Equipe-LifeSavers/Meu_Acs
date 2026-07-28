@@ -70,6 +70,50 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
     filtrarFamilias(familias, pesquisaController.text);
   }
 
+  Future<void> editarFamilia(FamiliaModel familia) async {
+    final familiaEditada = await showDialog<FamiliaModel>(
+      context: context,
+      builder: (_) => FamiliaFormDialog(familia: familia),
+    );
+
+    if (familiaEditada == null) return;
+
+    await controller.atualizarFamilia(familiaEditada);
+    await carregarFamilias();
+
+    filtrarFamilias(familias, pesquisaController.text);
+  }
+
+  Future<void> excluirFamilia(FamiliaModel familia) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Excluir Família'),
+        content: Text(
+          'Deseja realmente excluir a família de ${familia.responsavel}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    await controller.excluirFamilia(familia.id);
+    await carregarFamilias();
+
+    filtrarFamilias(familias, pesquisaController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (carregando) {
@@ -246,6 +290,7 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
 
                       DataCell(Text(familia.quantidadeMoradores.toString())),
 
+                      // botões de ação (editar e excluir)
                       DataCell(
                         Row(
                           mainAxisSize: MainAxisSize.min,
@@ -255,7 +300,8 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
                                 Icons.edit_outlined,
                                 color: Colors.blue,
                               ),
-                              onPressed: () {},
+                              tooltip: 'Editar',
+                              onPressed: () => editarFamilia(familia),
                             ),
 
                             IconButton(
@@ -263,7 +309,8 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
                                 Icons.delete_outline,
                                 color: Colors.red,
                               ),
-                              onPressed: () {},
+                              tooltip: 'Excluir',
+                              onPressed: () => excluirFamilia(familia),
                             ),
                           ],
                         ),

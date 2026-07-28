@@ -11,4 +11,12 @@ class FamiliaRepository {
   Future<void> adicionarFamilia(FamiliaModel familia) async {
     await _service.adicionarFamilia(familia);
   }
+
+  Future<void> atualizarFamilia(FamiliaModel familia) async {
+    await _service.atualizarFamilia(familia);
+  }
+
+  Future<void> excluirFamilia(int id) async {
+    await _service.excluirFamilia(id);
+  }
 }

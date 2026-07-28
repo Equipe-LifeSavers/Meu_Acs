@@ -20,6 +20,19 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
   final moradoresController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.familia != null) {
+      responsavelController.text = widget.familia!.responsavel;
+      cpfController.text = widget.familia!.cpfResponsavel;
+      telefoneController.text = widget.familia!.telefone;
+      enderecoController.text = widget.familia!.endereco;
+      moradoresController.text = widget.familia!.quantidadeMoradores.toString();
+    }
+  }
+
+  @override
   void dispose() {
     responsavelController.dispose();
     cpfController.dispose();
@@ -32,7 +45,7 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Nova Família'),
+      title: Text(widget.editando ? 'Editar Família' : 'Nova Família'),
 
       content: SizedBox(
         width: 450,
@@ -50,9 +63,11 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Informe o responsável';
                   }
+
                   if (value.trim().length < 3) {
                     return 'Nome muito curto';
                   }
+
                   return null;
                 },
               ),
@@ -67,6 +82,7 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Informe o CPF';
                   }
+
                   if (value.trim().length != 11) {
                     return 'CPF deve conter 11 números';
                   }
@@ -113,9 +129,7 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
                   if (value == null || value.trim().isEmpty) {
                     return 'Informe a quantidade';
                   }
-
                   final numero = int.tryParse(value);
-
                   if (numero == null || numero <= 0) {
                     return 'Quantidade inválida';
                   }
@@ -130,7 +144,6 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-
           child: const Text('Cancelar'),
         ),
 
@@ -141,18 +154,17 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
             }
 
             final familia = FamiliaModel(
-              id: DateTime.now().millisecondsSinceEpoch,
-              responsavel: responsavelController.text,
-              cpfResponsavel: cpfController.text,
-              telefone: telefoneController.text,
-              endereco: enderecoController.text,
-              quantidadeMoradores: int.tryParse(moradoresController.text) ?? 0,
+              id: widget.familia?.id ?? DateTime.now().millisecondsSinceEpoch,
+              responsavel: responsavelController.text.trim(),
+              cpfResponsavel: cpfController.text.trim(),
+              telefone: telefoneController.text.trim(),
+              endereco: enderecoController.text.trim(),
+              quantidadeMoradores: int.parse(moradoresController.text),
             );
 
             Navigator.pop(context, familia);
           },
-          
-          child: const Text('Salvar'),
+          child: Text(widget.editando ? 'Salvar Alterações' : 'Salvar'),
         ),
       ],
     );

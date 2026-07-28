@@ -11,4 +11,12 @@ class FamiliaController {
   Future<void> adicionarFamilia(FamiliaModel familia) async {
     await _repository.adicionarFamilia(familia);
   }
+
+  Future<void> atualizarFamilia(FamiliaModel familia) async {
+    await _repository.atualizarFamilia(familia);
+  }
+
+  Future<void> excluirFamilia(int id) async {
+    await _repository.excluirFamilia(id);
+  }
 }

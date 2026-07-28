@@ -2,7 +2,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/login/login_screen.dart';
 import '../features/dashboard/acs_dashboard/acs_dashboard_screen.dart';
 import '../features/familia/familia_screen.dart';
-import '../features/morador/morador_screen.dart';
+import '../features/moradores/morador_screen.dart';
 import '../features/residencia/residencia_screen.dart';
 import '../features/visita/visita_screen.dart';
 import '../features/relatorio/relatorio_screen.dart';

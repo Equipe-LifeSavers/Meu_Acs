@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/app_routes.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -45,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('CPF ou senha inválidos.')));
+      ).showSnackBar(const SnackBar(content: Text('E-mail ou senha inválidos.')));
     }
   }
 
@@ -79,22 +78,29 @@ class _LoginScreenState extends State<LoginScreen> {
                             const _LoginHeader(),
                             const SizedBox(height: AppSizes.xl),
 
-                            // CPF
+                            // Email
                             TextFormField(
-                              controller: controller.cpfController,
-                              keyboardType: TextInputType.number,
+                              controller: controller.emailController,
+                              keyboardType: TextInputType.emailAddress,
                               decoration: const InputDecoration(
-                                labelText: AppStrings.cpfLabel,
-                                hintText: 'Digite seu CPF',
-                                prefixIcon: Icon(Icons.badge_outlined),
+                                labelText: 'E-mail',
+                                hintText: 'Digite seu e-mail',
+                                prefixIcon: Icon(Icons.email_outlined),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Informe o CPF';
+                                  return 'Informe o e-mail';
                                 }
-                                if (value.trim().length < 11) {
-                                  return 'CPF inválido';
+
+                                final email = value.trim();
+                                final regex = RegExp(
+                                  r'^[\w\.-]+@[\w\.-]+\.\w+$',
+                                );
+
+                                if (!regex.hasMatch(email)) {
+                                  return 'E-mail inválido';
                                 }
+
                                 return null;
                               },
                             ),

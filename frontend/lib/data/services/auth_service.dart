@@ -1,19 +1,24 @@
-import '../mocks/auth_mock.dart';
-import '../models/usuario_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/login_response_model.dart';
 
 class AuthService {
-  Future<UsuarioModel?> login({
-    required String cpf,
+  static const String baseUrl = 'http://localhost:8080';
+
+  Future<LoginResponseModel> login({
+    required String email,
     required String senha,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'senha': senha}),
+    );
 
-    try {
-      return AuthMock.usuarios.firstWhere(
-        (usuario) => usuario.cpf == cpf && senha == AuthMock.senhaPadrao,
-      );
-    } catch (_) {
-      return null;
+    if (response.statusCode == 200) {
+      return LoginResponseModel.fromJson(jsonDecode(response.body));
     }
+
+    throw Exception('Email ou senha inválidos');
   }
 }

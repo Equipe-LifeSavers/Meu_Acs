@@ -6,14 +6,23 @@ class SessionService {
   static final SessionService instance = SessionService._();
 
   UsuarioModel? usuario;
+  String? token;
+  String? perfil;
+  bool get isLogged => token != null;
 
-  bool get isLogged => usuario != null;
-
-  void login(UsuarioModel usuarioLogado) {
+  void login({
+    UsuarioModel? usuarioLogado,
+    required String tokenJwt,
+    required String perfilUsuario,
+  }) {
     usuario = usuarioLogado;
+    token = tokenJwt;
+    perfil = perfilUsuario;
   }
 
   void logout() {
     usuario = null;
+    token = null;
+    perfil = null;
   }
 }

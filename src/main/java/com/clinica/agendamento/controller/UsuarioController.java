@@ -153,13 +153,9 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponse>> listarAtivos() {
 
         return ResponseEntity.ok(
-
                 usuarioRepository.findByAtivoTrue()
-
                         .stream()
-
                         .map(this::toResponse)
-
                         .toList()
 
         );
@@ -174,15 +170,10 @@ public class UsuarioController {
         return ResponseEntity.ok(
 
                 usuarioRepository.findByPerfil(perfil)
-
                         .stream()
-
                         .map(this::toResponse)
-
                         .toList()
-
         );
-
     }
 
     private UsuarioResponse toResponse(Usuario usuario) {

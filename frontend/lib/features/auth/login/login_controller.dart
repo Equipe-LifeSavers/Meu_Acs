@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
-import '../../../data/repositories/auth_repository.dart';
 import '../../../core/services/session_service.dart';
+import '../../../data/repositories/auth_repository.dart';
 
 class LoginController {
-  final cpfController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final AuthRepository _authRepository = AuthRepository();
+  final AuthRepository _repository = AuthRepository();
 
   Future<bool> login() async {
-    final usuario = await _authRepository.login(
-      cpf: cpfController.text,
-      senha: passwordController.text,
-    );
+    try {
+      final resposta = await _repository.login(
+        email: emailController.text.trim(),
+        senha: passwordController.text,
+      );
 
-    if (usuario != null) {
-      SessionService.instance.login(usuario);
+      SessionService.instance.login(
+        tokenJwt: resposta.token,
+        perfilUsuario: resposta.perfil,
+      );
+
       return true;
+    } catch (_) {
+      return false;
     }
-    return false;
   }
 
   void dispose() {
-    cpfController.dispose();
+    emailController.dispose();
     passwordController.dispose();
   }
 }

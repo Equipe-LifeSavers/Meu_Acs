@@ -25,7 +25,7 @@ class RelatorioModel {
 
   factory RelatorioModel.fromJson(Map<String, dynamic> json) {
     return RelatorioModel(
-      id: json['id'],
+      id: json['regiaoId'],
       regiao: json['nomeArea'],
       ubs: json['ubsNome'],
       totalAcs: json['totalAcs'],

@@ -1,34 +1,26 @@
-import '../mocks/familia_mock.dart';
 import '../models/familia_model.dart';
+import 'api_service.dart';
 
 class FamiliaService {
-  Future<List<FamiliaModel>> listarFamilias() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  final ApiService _api = ApiService();
 
-    return List.from(FamiliaMock.familias);
+  Future<List<FamiliaModel>> listarFamilias() async {
+    final data = await _api.get('/familias');
+
+    return (data as List)
+        .map((json) => FamiliaModel.fromJson(json))
+        .toList();
   }
 
   Future<void> adicionarFamilia(FamiliaModel familia) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    FamiliaMock.familias.add(familia);
+    await _api.post('/familias', familia.toJson());
   }
 
   Future<void> atualizarFamilia(FamiliaModel familiaAtualizada) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final index = FamiliaMock.familias.indexWhere(
-      (f) => f.id == familiaAtualizada.id,
-    );
-
-    if (index != -1) {
-      FamiliaMock.familias[index] = familiaAtualizada;
-    }
+    await _api.put('/familias/${familiaAtualizada.id}', familiaAtualizada.toJson());
   }
 
   Future<void> excluirFamilia(int id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    FamiliaMock.familias.removeWhere((familia) => familia.id == id);
+    await _api.delete('/familias/$id');
   }
 }

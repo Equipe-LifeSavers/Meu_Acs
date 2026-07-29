@@ -1,4 +1,9 @@
+import '../../../data/models/dashboard_model.dart';
+import '../../../data/services/dashboard_service.dart';
+
 class AcsDashboardController {
+  final DashboardService _service = DashboardService();
+
   String get saudacao {
     final hora = DateTime.now().hour;
 
@@ -9,5 +14,9 @@ class AcsDashboardController {
       return 'Boa tarde';
     }
     return 'Boa noite';
+  }
+
+  Future<DashboardModel> buscarIndicadores() {
+    return _service.buscarDashboard();
   }
 }

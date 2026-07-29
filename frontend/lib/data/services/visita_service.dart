@@ -1,38 +1,26 @@
-import '../mocks/visita_mock.dart';
 import '../models/visita_model.dart';
+import 'api_service.dart';
 
 class VisitaService {
-  // Na integração substituir este método por GET /visitas
+  final ApiService _api = ApiService();
+
   Future<List<VisitaModel>> listarVisitas() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    final data = await _api.get('/visitas');
 
-    return List.from(VisitaMock.visitas);
+    return (data as List)
+        .map((json) => VisitaModel.fromJson(json))
+        .toList();
   }
 
-  // Na integração substituir por POST /visitas
   Future<void> adicionarVisita(VisitaModel visita) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    VisitaMock.visitas.add(visita);
+    await _api.post('/visitas', visita.toJson());
   }
 
-  // Na integração substituir por PUT /visitas/{id}
   Future<void> atualizarVisita(VisitaModel visitaAtualizada) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final index = VisitaMock.visitas.indexWhere(
-      (v) => v.id == visitaAtualizada.id,
-    );
-
-    if (index != -1) {
-      VisitaMock.visitas[index] = visitaAtualizada;
-    }
+    await _api.put('/visitas/${visitaAtualizada.id}', visitaAtualizada.toJson());
   }
 
-  // Na integração substituir por DELETE /visitas/{id}
   Future<void> excluirVisita(int id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    VisitaMock.visitas.removeWhere((v) => v.id == id);
+    await _api.delete('/visitas/$id');
   }
 }

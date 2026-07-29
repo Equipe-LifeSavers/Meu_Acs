@@ -27,6 +27,11 @@ public class Usuario implements UserDetails {
     private String nome;
 
     @NotBlank
+    @jakarta.validation.constraints.Pattern(regexp = "\\d{11}", message = "CPF deve conter 11 dígitos")
+    @Column(unique = true, nullable = false)
+    private String cpf;
+
+    @NotBlank
     @Column(unique = true, nullable = false)
     private String email;
 

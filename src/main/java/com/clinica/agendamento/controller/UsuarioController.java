@@ -32,9 +32,14 @@ public class UsuarioController {
             throw new RuntimeException("E-mail já cadastrado.");
         }
 
+        if (usuarioRepository.existsByCpf(request.cpf())) {
+            throw new RuntimeException("CPF já cadastrado.");
+        }
+
         Usuario usuario = new Usuario();
 
         usuario.setNome(request.nome());
+        usuario.setCpf(request.cpf());
         usuario.setEmail(request.email());
         usuario.setSenha(passwordEncoder.encode(request.senha()));
         usuario.setPerfil(request.perfil());
@@ -81,6 +86,13 @@ public class UsuarioController {
                         throw new RuntimeException("E-mail já cadastrado.");
                     }
                     usuario.setEmail(request.email());
+
+                    if (!usuario.getCpf().equals(request.cpf())
+                            && usuarioRepository.existsByCpf(request.cpf())) {
+
+                        throw new RuntimeException("CPF já cadastrado.");
+                    }
+                    usuario.setCpf(request.cpf());
 
                     if (request.senha() != null && !request.senha().isBlank()) {
                         usuario.setSenha(
@@ -153,9 +165,13 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponse>> listarAtivos() {
 
         return ResponseEntity.ok(
+
                 usuarioRepository.findByAtivoTrue()
+
                         .stream()
+
                         .map(this::toResponse)
+
                         .toList()
 
         );
@@ -170,10 +186,15 @@ public class UsuarioController {
         return ResponseEntity.ok(
 
                 usuarioRepository.findByPerfil(perfil)
+
                         .stream()
+
                         .map(this::toResponse)
+
                         .toList()
+
         );
+
     }
 
     private UsuarioResponse toResponse(Usuario usuario) {
@@ -182,6 +203,7 @@ public class UsuarioController {
 
                 usuario.getId(),
                 usuario.getNome(),
+                usuario.getCpf(),
                 usuario.getEmail(),
                 usuario.getPerfil(),
                 usuario.isAtivo()

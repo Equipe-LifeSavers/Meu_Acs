@@ -79,6 +79,7 @@ public class PerfilController {
         return new UsuarioResponse(
                 usuario.getId(),
                 usuario.getNome(),
+                usuario.getCpf(),
                 usuario.getEmail(),
                 usuario.getPerfil(),
                 usuario.isAtivo());

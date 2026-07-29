@@ -8,6 +8,8 @@ public record UsuarioResponse(
 
         String nome,
 
+        String cpf,
+
         String email,
 
         Perfil perfil,

@@ -1,43 +1,26 @@
-import '../mocks/residencia_mock.dart';
 import '../models/residencia_model.dart';
+import 'api_service.dart';
 
 class ResidenciaService {
-  Future<List<ResidenciaModel>> listarResidencias() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    return List.from(ResidenciaMock.residencias);
+  final ApiService _api = ApiService();
 
-    //  Substituir pela chamada GET /residencias
+  Future<List<ResidenciaModel>> listarResidencias() async {
+    final data = await _api.get('/residencias');
+
+    return (data as List)
+        .map((json) => ResidenciaModel.fromJson(json))
+        .toList();
   }
 
   Future<void> adicionarResidencia(ResidenciaModel residencia) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    ResidenciaMock.residencias.add(residencia);
-
-    //  Substituir pela chamada POST /residencias
+    await _api.post('/residencias', residencia.toJson());
   }
 
   Future<void> atualizarResidencia(ResidenciaModel residencia) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    final index = ResidenciaMock.residencias.indexWhere(
-      (r) => r.id == residencia.id,
-    );
-
-    if (index != -1) {
-      ResidenciaMock.residencias[index] = residencia;
-    }
-
-    //  Substituir pela chamada PUT /residencias/{id}
+    await _api.put('/residencias/${residencia.id}', residencia.toJson());
   }
 
   Future<void> excluirResidencia(int id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    ResidenciaMock.residencias.removeWhere(
-      (r) => r.id == id,
-    );
-
-    //  Substituir pela chamada DELETE /residencias/{id}
+    await _api.delete('/residencias/$id');
   }
 }

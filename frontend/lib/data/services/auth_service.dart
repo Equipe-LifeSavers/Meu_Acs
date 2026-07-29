@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../mocks/auth_mock.dart';
 import '../models/login_response_model.dart';
+import '../../core/services/session_service.dart';
 
 class AuthService {
   static const String baseUrl = 'http://localhost:8080';
@@ -14,7 +15,7 @@ class AuthService {
   //
   // Ao finalizando as telas, alterar para false.
   // ==========================================================
-  static const bool usarMock = true;
+  static const bool usarMock = false;
 
   Future<LoginResponseModel> login({
     required String email,
@@ -52,14 +53,30 @@ class AuthService {
 
     final response = await http.post(
       Uri.parse('$baseUrl/auth/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'senha': senha}),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'senha': senha,
+      }),
     );
 
     if (response.statusCode == 200) {
-      return LoginResponseModel.fromJson(jsonDecode(response.body));
+      final loginResponse = LoginResponseModel.fromJson(
+        jsonDecode(response.body),
+      );
+
+      SessionService.instance.login(
+        usuarioLogado: loginResponse.usuario,
+        tokenJwt: loginResponse.token,
+        perfilUsuario: loginResponse.perfil,
+      );
+
+      return loginResponse;
     }
 
     throw Exception('E-mail ou senha inválidos');
+    
   }
 }

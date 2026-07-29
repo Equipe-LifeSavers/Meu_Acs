@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../mocks/auth_mock.dart';
 import '../models/login_response_model.dart';
-import '../../core/services/session_service.dart';
+import '../models/usuario_model.dart';
 
 class AuthService {
   static const String baseUrl = 'http://localhost:8080';
@@ -12,8 +12,6 @@ class AuthService {
   //
   // true  = utiliza dados mockados
   // false = utiliza o backend
-  //
-  // Ao finalizando as telas, alterar para false.
   // ==========================================================
   static const bool usarMock = false;
 
@@ -53,30 +51,47 @@ class AuthService {
 
     final response = await http.post(
       Uri.parse('$baseUrl/auth/login'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'email': email,
-        'senha': senha,
-      }),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'senha': senha}),
     );
 
-    if (response.statusCode == 200) {
-      final loginResponse = LoginResponseModel.fromJson(
-        jsonDecode(response.body),
-      );
-
-      SessionService.instance.login(
-        usuarioLogado: loginResponse.usuario,
-        tokenJwt: loginResponse.token,
-        perfilUsuario: loginResponse.perfil,
-      );
-
-      return loginResponse;
+    if (response.statusCode != 200) {
+      throw Exception('E-mail ou senha inválidos');
     }
 
-    throw Exception('E-mail ou senha inválidos');
-    
+    final loginJson = jsonDecode(response.body);
+    final token = loginJson['token'] as String;
+    final perfil = loginJson['perfil'] as String;
+
+    // O /auth/login não devolve os dados do usuário (nome, email, id),
+    // só o token e o perfil. Buscamos o resto com o token recém-obtido.
+    final usuario = await _buscarPerfil(token);
+
+    return LoginResponseModel(
+      token: token,
+      perfil: perfil,
+      usuario: usuario,
+    );
+  }
+
+  Future<UsuarioModel?> _buscarPerfil(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/perfil'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return UsuarioModel.fromJson(jsonDecode(response.body));
+      }
+    } catch (_) {
+      // Se falhar, segue o login mesmo assim -- o nome só não aparece
+      // corretamente na tela, mas o usuário não fica travado no login.
+    }
+
+    return null;
   }
 }

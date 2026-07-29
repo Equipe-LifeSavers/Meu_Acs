@@ -51,7 +51,7 @@ class _AcsDashboardScreenState extends State<AcsDashboardScreen> {
           children: [
             DashboardHeader(
               saudacao: _controller.saudacao,
-              nome: SessionService.instance.usuario!.nome,
+              nome: SessionService.instance.usuario?.nome ?? 'Usuário',
             ),
 
             const SizedBox(height: 30),
@@ -95,7 +95,7 @@ class _AcsDashboardScreenState extends State<AcsDashboardScreen> {
                           crossAxisCount: quantidadeColunas,
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 20,
-                          childAspectRatio: 1.9,
+                          childAspectRatio: 1.7,
 
                           children: [
                             DashboardCard(

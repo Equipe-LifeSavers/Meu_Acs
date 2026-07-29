@@ -10,4 +10,13 @@ class UsuarioModel {
     required this.email,
     required this.perfil,
   });
+
+  factory UsuarioModel.fromJson(Map<String, dynamic> json) {
+    return UsuarioModel(
+      id: json['id'],
+      nome: json['nome'],
+      email: json['email'],
+      perfil: json['perfil'],
+    );
+  }
 }

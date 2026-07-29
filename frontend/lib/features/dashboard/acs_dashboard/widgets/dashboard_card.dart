@@ -22,21 +22,22 @@ class DashboardCard extends StatelessWidget {
       shadowColor: const Color.fromARGB(183, 0, 0, 0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       child: Padding(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: iconColor.withOpacity(.12),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: iconColor),
+              child: Icon(icon, color: iconColor, size: 22),
             ),
 
-            const Spacer(),
+            const SizedBox(height: 8),
 
             Text(
               value,
@@ -46,7 +47,7 @@ class DashboardCard extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 6),
+            const SizedBox(height: 2),
 
             Text(title, style: Theme.of(context).textTheme.bodyMedium),
           ],

@@ -1,40 +1,26 @@
-import '../mocks/morador_mock.dart';
 import '../models/morador_model.dart';
+import 'api_service.dart';
 
 class MoradorService {
+  final ApiService _api = ApiService();
+
   Future<List<MoradorModel>> listarMoradores() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    final data = await _api.get('/moradores');
 
-    //  Substituir pelo GET /moradores
-
-    return List.from(MoradorMock.moradores);
+    return (data as List)
+        .map((json) => MoradorModel.fromJson(json))
+        .toList();
   }
 
   Future<void> adicionarMorador(MoradorModel morador) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    //  Substituir pelo POST /moradores
-
-    MoradorMock.moradores.add(morador);
+    await _api.post('/moradores', morador.toJson());
   }
 
   Future<void> atualizarMorador(MoradorModel morador) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    //  Substituir pelo PUT /moradores/{id}
-
-    final index = MoradorMock.moradores.indexWhere((m) => m.id == morador.id);
-
-    if (index != -1) {
-      MoradorMock.moradores[index] = morador;
-    }
+    await _api.put('/moradores/${morador.id}', morador.toJson());
   }
 
   Future<void> excluirMorador(int id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    //  Substituir pelo DELETE /moradores/{id}
-
-    MoradorMock.moradores.removeWhere((m) => m.id == id);
+    await _api.delete('/moradores/$id');
   }
 }

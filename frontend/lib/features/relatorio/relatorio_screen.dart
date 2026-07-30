@@ -103,17 +103,26 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
 
                 ElevatedButton.icon(
                   onPressed: () async {
-                    await controller.gerarRelatorioGeral();
+                    try {
+                      await controller.gerarRelatorioGeral();
 
-                    if (!mounted) return;
+                      if (!mounted) return;
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Relatório geral gerado com sucesso (Mock).',
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Relatório geral gerado com sucesso.'),
                         ),
-                      ),
-                    );
+                      );
+                    } catch (e) {
+                      if (!mounted) return;
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro ao gerar relatório: $e'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                      );
+                    }
                   },
 
                   icon: const Icon(Icons.picture_as_pdf),
@@ -225,18 +234,29 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                             );
                           },
                           onPdf: () async {
-                            await controller.gerarRelatorioPorRegiao(
-                              relatorio.id,
-                            );
-                            if (!mounted) return;
+                            try {
+                              await controller.gerarRelatorioPorRegiao(
+                                relatorio.id,
+                              );
+                              if (!mounted) return;
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'PDF da região "${relatorio.regiao}" gerado com sucesso (Mock).',
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'PDF da região "${relatorio.regiao}" gerado com sucesso.',
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            } catch (e) {
+                              if (!mounted) return;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Erro ao gerar PDF: $e'),
+                                  backgroundColor: Theme.of(context).colorScheme.error,
+                                ),
+                              );
+                            }
                           },
                         ),
                       ),

@@ -1,5 +1,6 @@
 import '../models/relatorio_model.dart';
 import 'api_service.dart';
+import '../../core/utils/download_helper.dart';
 
 class RelatorioService {
   final ApiService _api = ApiService();
@@ -13,14 +14,12 @@ class RelatorioService {
   }
 
   Future<void> gerarRelatorioGeral() async {
-    // GET /relatorios/regioes/pdf
-    // Retorna bytes de PDF, não JSON — precisa de tratamento diferente do
-    // ApiService (download de arquivo), ainda não implementado.
-    throw UnimplementedError('Exportação em PDF ainda não integrada.');
+    final bytes = await _api.getBytes('/relatorios/regioes/pdf');
+    baixarArquivo(bytes, 'relatorio-regioes.pdf');
   }
 
   Future<void> gerarRelatorioPorRegiao(int regiaoId) async {
-    // GET /relatorios/regioes/{regiaoId}/pdf
-    throw UnimplementedError('Exportação em PDF ainda não integrada.');
+    final bytes = await _api.getBytes('/relatorios/regioes/$regiaoId/pdf');
+    baixarArquivo(bytes, 'relatorio-regiao-$regiaoId.pdf');
   }
 }

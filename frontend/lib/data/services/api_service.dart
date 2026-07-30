@@ -57,6 +57,25 @@ class ApiService {
     _handle(response, esperaCorpo: false);
   }
 
+  /// Usado para endpoints que retornam arquivo binário (ex: PDF),
+  /// em vez de JSON. Não passa pelo _handle porque o corpo não é texto.
+  Future<List<int>> getBytes(String endpoint) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: _headers,
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response.bodyBytes;
+    }
+
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      throw Exception('Sessão expirada ou sem permissão para essa ação.');
+    }
+
+    throw Exception('Erro ao gerar arquivo (${response.statusCode}).');
+  }
+
   dynamic _handle(http.Response response, {bool esperaCorpo = true}) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (!esperaCorpo || response.body.isEmpty) {

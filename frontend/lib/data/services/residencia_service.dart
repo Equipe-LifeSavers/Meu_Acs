@@ -1,13 +1,18 @@
 import '../models/residencia_model.dart';
 import 'api_service.dart';
 import 'familia_service.dart';
+import '../../core/services/session_service.dart';
 
 class ResidenciaService {
   final ApiService _api = ApiService();
   final FamiliaService _familiaService = FamiliaService();
 
   Future<List<ResidenciaModel>> listarResidencias() async {
-    final data = await _api.get('/residencias');
+    final endpoint = SessionService.instance.perfil == 'ACS'
+        ? '/residencias/minha-regiao'
+        : '/residencias';
+
+    final data = await _api.get(endpoint);
 
     final residencias = (data as List)
         .map((json) => ResidenciaModel.fromJson(json))

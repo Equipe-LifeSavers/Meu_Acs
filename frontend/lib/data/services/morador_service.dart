@@ -1,11 +1,16 @@
 import '../models/morador_model.dart';
 import 'api_service.dart';
+import '../../core/services/session_service.dart';
 
 class MoradorService {
   final ApiService _api = ApiService();
 
   Future<List<MoradorModel>> listarMoradores() async {
-    final data = await _api.get('/moradores');
+    final endpoint = SessionService.instance.perfil == 'ACS'
+        ? '/moradores/minha-regiao'
+        : '/moradores';
+
+    final data = await _api.get(endpoint);
 
     return (data as List)
         .map((json) => MoradorModel.fromJson(json))

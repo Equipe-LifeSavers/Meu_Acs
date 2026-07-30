@@ -9,6 +9,7 @@ import com.clinica.agendamento.enums.Demanda;
 import com.clinica.agendamento.enums.Sexo;
 import com.clinica.agendamento.model.Acs;
 import com.clinica.agendamento.model.Ubs;
+import com.clinica.agendamento.model.Visita;
 import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.FamiliaRepository;
 import com.clinica.agendamento.repository.MoradorRepository;
@@ -84,9 +85,13 @@ public class DashboardController {
 
                 Long regiaoId = acs.getRegiao().getId();
 
-                long totalVisitas = visitaRepository.countByAcsRegiaoId(regiaoId);
-                long visitasRealizadas = visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaTrue(regiaoId);
-                long visitasPendentes = visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaFalse(regiaoId);
+                List<Visita> minhasVisitas = visitaRepository.findByAcsId(acs.getId());
+
+                long totalVisitas = minhasVisitas.size();
+                long visitasRealizadas = minhasVisitas.stream()
+                                .filter(Visita::getVisitaRealizada)
+                                .count();
+                long visitasPendentes = totalVisitas - visitasRealizadas;
 
                 return new DashboardResponse(
 

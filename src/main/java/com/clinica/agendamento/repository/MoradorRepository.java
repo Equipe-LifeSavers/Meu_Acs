@@ -21,6 +21,8 @@ public interface MoradorRepository extends JpaRepository<Morador, Long> {
 
     long countByFamiliaResidenciaRegiaoId(Long regiaoId);
 
+    List<Morador> findByFamiliaResidenciaRegiaoId(Long regiaoId);
+
     long countByFamiliaResidenciaRegiaoUbsId(Long ubsId);
 
     long countBySexo(Sexo sexo);

@@ -1,14 +1,17 @@
 package com.clinica.agendamento.controller;
 
 import com.clinica.agendamento.dto.ResidenciaRequest;
+import com.clinica.agendamento.model.Acs;
 import com.clinica.agendamento.model.Regiao;
 import com.clinica.agendamento.model.Residencia;
+import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.RegiaoRepository;
 import com.clinica.agendamento.repository.ResidenciaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -22,6 +25,7 @@ public class ResidenciaController {
 
     private final ResidenciaRepository residenciaRepository;
     private final RegiaoRepository regiaoRepository;
+    private final AcsRepository acsRepository;
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS', 'ACS')")
     @PostMapping
@@ -95,6 +99,22 @@ public class ResidenciaController {
     @GetMapping("/regiao/{regiaoId}")
     public ResponseEntity<List<Residencia>> listarPorRegiao(@PathVariable Long regiaoId) {
         return ResponseEntity.ok(residenciaRepository.findByRegiaoId(regiaoId));
+    }
+
+    @PreAuthorize("hasRole('ACS')")
+    @GetMapping("/minha-regiao")
+    public ResponseEntity<List<Residencia>> minhaRegiao() {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        Acs acs = acsRepository.findByUsuarioEmail(email)
+                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+
+        return ResponseEntity.ok(
+                residenciaRepository.findByRegiaoId(acs.getRegiao().getId()));
     }
 
 }

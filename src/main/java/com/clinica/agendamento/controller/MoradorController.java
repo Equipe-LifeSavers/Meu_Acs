@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.clinica.agendamento.dto.MoradorRequest;
 import com.clinica.agendamento.dto.MoradorResponse;
+import com.clinica.agendamento.model.Acs;
 import com.clinica.agendamento.model.Familia;
 import com.clinica.agendamento.model.Morador;
+import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.FamiliaRepository;
 import com.clinica.agendamento.repository.MoradorRepository;
 
@@ -28,6 +30,7 @@ public class MoradorController {
 
     private final MoradorRepository moradorRepository;
     private final FamiliaRepository familiaRepository;
+    private final AcsRepository acsRepository;
 
     private String getUsuarioLogado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -133,6 +136,19 @@ public class MoradorController {
     @GetMapping("/familia/{familiaId}")
     public List<MoradorResponse> listarPorFamilia(@PathVariable Long familiaId) {
         return moradorRepository.findByFamiliaId(familiaId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('ACS')")
+    @GetMapping("/minha-regiao")
+    public List<MoradorResponse> minhaRegiao() {
+
+        Acs acs = acsRepository.findByUsuarioEmail(getUsuarioLogado())
+                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+
+        return moradorRepository.findByFamiliaResidenciaRegiaoId(acs.getRegiao().getId())
                 .stream()
                 .map(this::toResponse)
                 .toList();

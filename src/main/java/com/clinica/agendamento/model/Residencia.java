@@ -18,6 +18,14 @@ public class Residencia {
     @Column(nullable = false)
     private String endereco;
 
+    private String tipoImovel;
+
+    private boolean possuiAgua;
+
+    private boolean possuiEnergia;
+
+    private boolean possuiEsgoto;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "regiao_id", nullable = false)
     private Regiao regiao;

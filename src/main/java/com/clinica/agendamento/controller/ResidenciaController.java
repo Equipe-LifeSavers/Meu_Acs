@@ -32,6 +32,10 @@ public class ResidenciaController {
 
         Residencia residencia = new Residencia();
         residencia.setEndereco(dto.endereco());
+        residencia.setTipoImovel(dto.tipoImovel());
+        residencia.setPossuiAgua(dto.possuiAgua());
+        residencia.setPossuiEnergia(dto.possuiEnergia());
+        residencia.setPossuiEsgoto(dto.possuiEsgoto());
         residencia.setRegiao(regiao);
 
         residencia = residenciaRepository.save(residencia);
@@ -66,6 +70,10 @@ public class ResidenciaController {
                             .orElseThrow(() -> new RuntimeException("Região não encontrada"));
 
                     residencia.setEndereco(dto.endereco());
+                    residencia.setTipoImovel(dto.tipoImovel());
+                    residencia.setPossuiAgua(dto.possuiAgua());
+                    residencia.setPossuiEnergia(dto.possuiEnergia());
+                    residencia.setPossuiEsgoto(dto.possuiEsgoto());
                     residencia.setRegiao(regiao);
 
                     return ResponseEntity.ok(residenciaRepository.save(residencia));

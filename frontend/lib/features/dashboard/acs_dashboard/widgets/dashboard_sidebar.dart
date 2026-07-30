@@ -64,12 +64,15 @@ class DashboardSidebar extends StatelessWidget {
                     onTap: () => context.go(AppRoutes.visitas),
                   ),
 
-                  _SidebarItem(
-                    icon: Icons.bar_chart_outlined,
-                    title: 'Relatórios',
-                    selected: rotaAtual == AppRoutes.relatorios,
-                    onTap: () => context.go(AppRoutes.relatorios),
-                  ),
+                  // Relatórios agrega dados de várias regiões -- não é
+                  // permitido pro perfil ACS no backend, então nem mostra.
+                  if (usuario?.perfil != 'ACS')
+                    _SidebarItem(
+                      icon: Icons.bar_chart_outlined,
+                      title: 'Relatórios',
+                      selected: rotaAtual == AppRoutes.relatorios,
+                      onTap: () => context.go(AppRoutes.relatorios),
+                    ),
 
                   _SidebarItem(
                     icon: Icons.settings_outlined,

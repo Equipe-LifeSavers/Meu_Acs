@@ -11,4 +11,15 @@ class AcsService {
         .map((json) => AcsModel.fromJson(json))
         .toList();
   }
+
+  /// Só funciona pra quem está logado como ACS -- devolve o próprio
+  /// registro (id, nome) do agente autenticado.
+  Future<AcsModel?> buscarMeuAcs() async {
+    try {
+      final data = await _api.get('/acs/me');
+      return AcsModel.fromJson(data);
+    } catch (_) {
+      return null;
+    }
+  }
 }

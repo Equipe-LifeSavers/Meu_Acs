@@ -4,6 +4,7 @@ import '../../../data/models/morador_model.dart';
 import '../../../data/models/acs_model.dart';
 import '../../../data/services/morador_service.dart';
 import '../../../data/services/acs_service.dart';
+import '../../../core/services/session_service.dart';
 
 class VisitaFormDialog extends StatefulWidget {
   final VisitaModel? visita;
@@ -43,6 +44,9 @@ class _VisitaFormDialogState extends State<VisitaFormDialog> {
   String demanda = 'OUTROS';
   bool visitaRealizada = false;
 
+  final bool souAcs = SessionService.instance.perfil == 'ACS';
+  String? meuNomeAcs;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +66,20 @@ class _VisitaFormDialogState extends State<VisitaFormDialog> {
       visitaRealizada = visita.status == 'Realizada';
     } else {
       data = DateTime.now();
+    }
+
+    // Um ACS só pode registrar visita em nome de si mesmo -- busca o
+    // próprio registro e trava o campo (a não ser que já esteja editando
+    // uma visita existente de outro agente, aí deixa como está).
+    if (souAcs && !widget.editando) {
+      _acsService.buscarMeuAcs().then((meuAcs) {
+        if (meuAcs != null && mounted) {
+          setState(() {
+            acsIdSelecionado = meuAcs.id;
+            meuNomeAcs = meuAcs.nome;
+          });
+        }
+      });
     }
   }
 
@@ -147,7 +165,17 @@ class _VisitaFormDialogState extends State<VisitaFormDialog> {
                 const SizedBox(height: 16),
 
                 // ---------- ACS ----------
-                FutureBuilder<List<AcsModel>>(
+                if (souAcs)
+                  TextFormField(
+                    initialValue: meuNomeAcs ?? 'Carregando...',
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Agente (ACS)',
+                      helperText: 'Visitas são sempre registradas em seu próprio nome.',
+                    ),
+                  )
+                else
+                  FutureBuilder<List<AcsModel>>(
                   future: _futureAcs,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

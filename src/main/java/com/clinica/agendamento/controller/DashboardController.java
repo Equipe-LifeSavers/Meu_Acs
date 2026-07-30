@@ -7,6 +7,7 @@ import com.clinica.agendamento.dto.IndicadoresPopulacionaisResponse;
 import com.clinica.agendamento.dto.UbsResumoResponse;
 import com.clinica.agendamento.enums.Demanda;
 import com.clinica.agendamento.enums.Sexo;
+import com.clinica.agendamento.model.Acs;
 import com.clinica.agendamento.model.Ubs;
 import com.clinica.agendamento.repository.AcsRepository;
 import com.clinica.agendamento.repository.FamiliaRepository;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -42,7 +44,7 @@ public class DashboardController {
         private final PdfExportService pdfExportService;
 
         @GetMapping
-        @PreAuthorize("hasAnyRole('ADMIN','UBS')")
+        @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")
         public DashboardResponse dashboard() {
 
                 return new DashboardResponse(
@@ -64,6 +66,47 @@ public class DashboardController {
                                 visitaRepository.countByVisitaRealizadaTrue(),
 
                                 visitaRepository.countByVisitaRealizadaFalse()
+
+                );
+        }
+
+        @GetMapping("/minha-regiao")
+        @PreAuthorize("hasRole('ACS')")
+        public DashboardResponse dashboardMinhaRegiao() {
+
+                String email = SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getName();
+
+                Acs acs = acsRepository.findByUsuarioEmail(email)
+                                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+
+                Long regiaoId = acs.getRegiao().getId();
+
+                long totalVisitas = visitaRepository.countByAcsRegiaoId(regiaoId);
+                long visitasRealizadas = visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaTrue(regiaoId);
+                long visitasPendentes = visitaRepository.countByAcsRegiaoIdAndVisitaRealizadaFalse(regiaoId);
+
+                return new DashboardResponse(
+
+                                1L,
+
+                                1L,
+
+                                acsRepository.countByRegiaoId(regiaoId),
+
+                                (long) residenciaRepository.findByRegiaoId(regiaoId).size(),
+
+                                (long) familiaRepository.findByResidenciaRegiaoId(regiaoId).size(),
+
+                                moradorRepository.countByFamiliaResidenciaRegiaoId(regiaoId),
+
+                                totalVisitas,
+
+                                visitasRealizadas,
+
+                                visitasPendentes
 
                 );
         }

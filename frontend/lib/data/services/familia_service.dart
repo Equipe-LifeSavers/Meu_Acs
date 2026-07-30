@@ -1,11 +1,18 @@
 import '../models/familia_model.dart';
 import 'api_service.dart';
+import '../../core/services/session_service.dart';
 
 class FamiliaService {
   final ApiService _api = ApiService();
 
   Future<List<FamiliaModel>> listarFamilias() async {
-    final data = await _api.get('/familias');
+    // ACS só vê as famílias da própria região (endpoint escopado no
+    // backend); ADMIN/UBS veem todas.
+    final endpoint = SessionService.instance.perfil == 'ACS'
+        ? '/familias/minhas'
+        : '/familias';
+
+    final data = await _api.get(endpoint);
 
     return (data as List)
         .map((json) => FamiliaModel.fromJson(json))

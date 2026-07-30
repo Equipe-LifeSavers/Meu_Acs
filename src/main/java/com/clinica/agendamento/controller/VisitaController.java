@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.clinica.agendamento.dto.VisitaRequest;
@@ -139,6 +140,24 @@ public class VisitaController {
                                 .map(this::toResponse)
                                 .toList();
 
+        }
+
+        @PreAuthorize("hasRole('ACS')")
+        @GetMapping("/minhas")
+        public List<VisitaResponse> minhasVisitas() {
+
+                String email = SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getName();
+
+                Acs acs = acsRepository.findByUsuarioEmail(email)
+                                .orElseThrow(() -> new RuntimeException("ACS não encontrado"));
+
+                return visitaRepository.findByAcsId(acs.getId())
+                                .stream()
+                                .map(this::toResponse)
+                                .toList();
         }
 
         @PreAuthorize("hasAnyRole('ADMIN','UBS','ACS')")

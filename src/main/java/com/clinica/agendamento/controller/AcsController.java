@@ -10,6 +10,7 @@ import com.clinica.agendamento.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,10 +43,24 @@ public class AcsController {
         return ResponseEntity.ok(acsRepository.save(acs));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'UBS', 'ACS')")
     @GetMapping
     public ResponseEntity<List<Acs>> listarTodos() {
         return ResponseEntity.ok(acsRepository.findAll());
+    }
+
+    @PreAuthorize("hasRole('ACS')")
+    @GetMapping("/me")
+    public ResponseEntity<Acs> meuRegistro() {
+
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        return acsRepository.findByUsuarioEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'UBS')")

@@ -63,21 +63,65 @@ class _ResidenciaScreenState extends State<ResidenciaScreen> {
   }
 
   Future<void> adicionarResidencia(ResidenciaModel residencia) async {
-    await controller.adicionarResidencia(residencia);
-    await carregarResidencias();
-    filtrarResidencias(pesquisaController.text);
+    try {
+      await controller.adicionarResidencia(residencia);
+      await carregarResidencias();
+      filtrarResidencias(pesquisaController.text);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Residência cadastrada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao cadastrar residência: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> atualizarResidencia(ResidenciaModel residencia) async {
-    await controller.atualizarResidencia(residencia);
-    await carregarResidencias();
-    filtrarResidencias(pesquisaController.text);
+    try {
+      await controller.atualizarResidencia(residencia);
+      await carregarResidencias();
+      filtrarResidencias(pesquisaController.text);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Residência atualizada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar residência: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> excluirResidencia(int id) async {
-    await controller.excluirResidencia(id);
-    await carregarResidencias();
-    filtrarResidencias(pesquisaController.text);
+    try {
+      await controller.excluirResidencia(id);
+      await carregarResidencias();
+      filtrarResidencias(pesquisaController.text);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao excluir residência: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  String _mensagemAmigavel(Object erro) {
+    return erro.toString().replaceFirst('Exception: ', '');
   }
 
   @override

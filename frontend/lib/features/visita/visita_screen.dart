@@ -66,27 +66,65 @@ class _VisitaScreenState extends State<VisitaScreen> {
   }
 
   Future<void> adicionarVisita(VisitaModel visita) async {
-    await controller.adicionarVisita(visita);
+    try {
+      await controller.adicionarVisita(visita);
+      await carregarVisitas();
+      filtrarVisitas(pesquisaController.text);
 
-    await carregarVisitas();
-
-    filtrarVisitas(pesquisaController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Visita cadastrada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao cadastrar visita: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> atualizarVisita(VisitaModel visita) async {
-    await controller.atualizarVisita(visita);
+    try {
+      await controller.atualizarVisita(visita);
+      await carregarVisitas();
+      filtrarVisitas(pesquisaController.text);
 
-    await carregarVisitas();
-
-    filtrarVisitas(pesquisaController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Visita atualizada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar visita: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> excluirVisita(int id) async {
-    await controller.excluirVisita(id);
+    try {
+      await controller.excluirVisita(id);
+      await carregarVisitas();
+      filtrarVisitas(pesquisaController.text);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao excluir visita: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
 
-    await carregarVisitas();
-
-    filtrarVisitas(pesquisaController.text);
+  String _mensagemAmigavel(Object erro) {
+    return erro.toString().replaceFirst('Exception: ', '');
   }
 
   Color corStatus(String status) {

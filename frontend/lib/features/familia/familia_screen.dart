@@ -65,9 +65,24 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
   }
 
   Future<void> adicionarFamilia(FamiliaModel familia) async {
-    await controller.adicionarFamilia(familia);
-    await carregarFamilias();
-    filtrarFamilias(familias, pesquisaController.text);
+    try {
+      await controller.adicionarFamilia(familia);
+      await carregarFamilias();
+      filtrarFamilias(familias, pesquisaController.text);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Família cadastrada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao cadastrar família: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> editarFamilia(FamiliaModel familia) async {
@@ -78,10 +93,28 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
 
     if (familiaEditada == null) return;
 
-    await controller.atualizarFamilia(familiaEditada);
-    await carregarFamilias();
+    try {
+      await controller.atualizarFamilia(familiaEditada);
+      await carregarFamilias();
+      filtrarFamilias(familias, pesquisaController.text);
 
-    filtrarFamilias(familias, pesquisaController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Família atualizada com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar família: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  String _mensagemAmigavel(Object erro) {
+    return erro.toString().replaceFirst('Exception: ', '');
   }
 
   Future<void> excluirFamilia(FamiliaModel familia) async {
@@ -108,10 +141,19 @@ class _FamiliaScreenState extends State<FamiliaScreen> {
 
     if (confirmar != true) return;
 
-    await controller.excluirFamilia(familia.id);
-    await carregarFamilias();
-
-    filtrarFamilias(familias, pesquisaController.text);
+    try {
+      await controller.excluirFamilia(familia.id);
+      await carregarFamilias();
+      filtrarFamilias(familias, pesquisaController.text);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao excluir família: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   @override

@@ -21,21 +21,21 @@ class ResidenciaModel {
     this.regiaoId,
   });
 
-  // O backend (ResidenciaController) hoje só retorna { id, endereco, regiao }.
-  // Os campos abaixo (família, tipoImovel, possuiAgua/Energia/Esgoto) NÃO existem
-  // na entidade Residencia do backend ainda — ficam com valor padrão até isso
-  // ser decidido (adicionar essas colunas no backend, ou remover da tela).
+  // O backend agora retorna { id, endereco, tipoImovel, possuiAgua,
+  // possuiEnergia, possuiEsgoto, regiao }.
+  // 'familia' continua sem equivalente: Residência não sabe sua Família
+  // (é a Família que aponta pra Residência, não o contrário).
   factory ResidenciaModel.fromJson(Map<String, dynamic> json) {
     final regiao = json['regiao'] as Map<String, dynamic>?;
 
     return ResidenciaModel(
       id: json['id'],
-      familia: '', // não existe no backend: Residência não sabe sua Família
+      familia: '',
       endereco: json['endereco'] ?? '',
-      tipoImovel: '', // não existe no backend ainda
-      possuiAgua: false, // não existe no backend ainda
-      possuiEnergia: false, // não existe no backend ainda
-      possuiEsgoto: false, // não existe no backend ainda
+      tipoImovel: json['tipoImovel'] ?? '',
+      possuiAgua: json['possuiAgua'] ?? false,
+      possuiEnergia: json['possuiEnergia'] ?? false,
+      possuiEsgoto: json['possuiEsgoto'] ?? false,
       regiaoId: regiao?['id'],
     );
   }
@@ -43,9 +43,11 @@ class ResidenciaModel {
   Map<String, dynamic> toJson() {
     return {
       'endereco': endereco,
+      'tipoImovel': tipoImovel,
+      'possuiAgua': possuiAgua,
+      'possuiEnergia': possuiEnergia,
+      'possuiEsgoto': possuiEsgoto,
       'regiaoId': regiaoId,
-      // tipoImovel/possuiAgua/possuiEnergia/possuiEsgoto não são enviados:
-      // o backend não tem onde guardar isso hoje.
     };
   }
 }

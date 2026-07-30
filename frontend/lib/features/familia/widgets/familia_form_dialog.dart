@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/familia_model.dart';
+import '../../../data/models/residencia_model.dart';
+import '../../../data/models/morador_model.dart';
+import '../../../data/services/residencia_service.dart';
+import '../../../data/services/morador_service.dart';
 
 class FamiliaFormDialog extends StatefulWidget {
   final FamiliaModel? familia;
@@ -13,33 +17,26 @@ class FamiliaFormDialog extends StatefulWidget {
 class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  final responsavelController = TextEditingController();
-  final cpfController = TextEditingController();
-  final telefoneController = TextEditingController();
-  final enderecoController = TextEditingController();
-  final moradoresController = TextEditingController();
+  final ResidenciaService _residenciaService = ResidenciaService();
+  final MoradorService _moradorService = MoradorService();
+
+  late Future<List<ResidenciaModel>> _futureResidencias;
+  late Future<List<MoradorModel>> _futureMoradores;
+
+  int? residenciaIdSelecionada;
+  int? responsavelIdSelecionado;
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.familia != null) {
-      responsavelController.text = widget.familia!.responsavel;
-      cpfController.text = widget.familia!.cpfResponsavel;
-      telefoneController.text = widget.familia!.telefone;
-      enderecoController.text = widget.familia!.endereco;
-      moradoresController.text = widget.familia!.quantidadeMoradores.toString();
-    }
-  }
+    _futureResidencias = _residenciaService.listarResidencias();
+    _futureMoradores = _moradorService.listarMoradores();
 
-  @override
-  void dispose() {
-    responsavelController.dispose();
-    cpfController.dispose();
-    telefoneController.dispose();
-    enderecoController.dispose();
-    moradoresController.dispose();
-    super.dispose();
+    if (widget.editando) {
+      residenciaIdSelecionada = widget.familia!.residenciaId;
+      responsavelIdSelecionado = widget.familia!.responsavelId;
+    }
   }
 
   @override
@@ -53,90 +50,107 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
         child: Form(
           key: _formKey,
 
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: responsavelController,
-                decoration: const InputDecoration(labelText: 'Responsável'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe o responsável';
-                  }
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ---------- Residência ----------
+                FutureBuilder<List<ResidenciaModel>>(
+                  future: _futureResidencias,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: LinearProgressIndicator(),
+                      );
+                    }
 
-                  if (value.trim().length < 3) {
-                    return 'Nome muito curto';
-                  }
+                    if (snapshot.hasError) {
+                      return Text(
+                        'Não foi possível carregar as residências.',
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      );
+                    }
 
-                  return null;
-                },
-              ),
+                    final residencias = snapshot.data ?? [];
 
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: cpfController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'CPF'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe o CPF';
-                  }
-
-                  if (value.trim().length != 11) {
-                    return 'CPF deve conter 11 números';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: telefoneController,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Telefone'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe o telefone';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: enderecoController,
-                decoration: const InputDecoration(labelText: 'Endereço'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe o endereço';
-                  }
-                  return null;
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: moradoresController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Quantidade de moradores',
+                    return DropdownButtonFormField<int>(
+                      value: residenciaIdSelecionada,
+                      decoration: const InputDecoration(labelText: 'Residência'),
+                      isExpanded: true,
+                      items: residencias
+                          .map((r) => DropdownMenuItem(
+                                value: r.id,
+                                child: Text(
+                                  r.endereco,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          residenciaIdSelecionada = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Selecione uma residência';
+                        }
+                        return null;
+                      },
+                    );
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe a quantidade';
-                  }
-                  final numero = int.tryParse(value);
-                  if (numero == null || numero <= 0) {
-                    return 'Quantidade inválida';
-                  }
-                  return null;
-                },
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                // ---------- Responsável ----------
+                FutureBuilder<List<MoradorModel>>(
+                  future: _futureMoradores,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: LinearProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Text(
+                        'Não foi possível carregar os moradores.',
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      );
+                    }
+
+                    final moradores = snapshot.data ?? [];
+
+                    return DropdownButtonFormField<int>(
+                      value: responsavelIdSelecionado,
+                      decoration: const InputDecoration(
+                        labelText: 'Responsável (morador)',
+                      ),
+                      isExpanded: true,
+                      items: moradores
+                          .map((m) => DropdownMenuItem(
+                                value: m.id,
+                                child: Text(
+                                  '${m.nome} — ${m.cpf}',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          responsavelIdSelecionado = value;
+                        });
+                      },
+                      // Sem validator: o backend permite família sem
+                      // responsável definido ainda (responsavel_id nullable).
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -154,12 +168,14 @@ class _FamiliaFormDialogState extends State<FamiliaFormDialog> {
             }
 
             final familia = FamiliaModel(
-              id: widget.familia?.id ?? DateTime.now().millisecondsSinceEpoch,
-              responsavel: responsavelController.text.trim(),
-              cpfResponsavel: cpfController.text.trim(),
-              telefone: telefoneController.text.trim(),
-              endereco: enderecoController.text.trim(),
-              quantidadeMoradores: int.parse(moradoresController.text),
+              id: widget.familia?.id ?? 0,
+              responsavel: '',
+              cpfResponsavel: '',
+              telefone: '',
+              endereco: '',
+              quantidadeMoradores: widget.familia?.quantidadeMoradores ?? 0,
+              residenciaId: residenciaIdSelecionada,
+              responsavelId: responsavelIdSelecionado,
             );
 
             Navigator.pop(context, familia);

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/residencia_model.dart';
+import '../../../data/models/regiao_model.dart';
+import '../../../data/services/regiao_service.dart';
 
 class ResidenciaFormDialog extends StatefulWidget {
   final ResidenciaModel? residencia;
@@ -14,34 +16,37 @@ class ResidenciaFormDialog extends StatefulWidget {
 
 class _ResidenciaFormDialogState extends State<ResidenciaFormDialog> {
   final _formKey = GlobalKey<FormState>();
-  final responsavelController = TextEditingController();
   final enderecoController = TextEditingController();
+
+  final RegiaoService _regiaoService = RegiaoService();
+  late Future<List<RegiaoModel>> _futureRegioes;
 
   String tipoImovel = 'Alvenaria';
   bool possuiAgua = true;
   bool possuiEnergia = true;
   bool possuiEsgoto = true;
+  int? regiaoIdSelecionada;
 
   @override
   void initState() {
     super.initState();
 
+    _futureRegioes = _regiaoService.listarRegioes();
+
     if (widget.editando) {
       final residencia = widget.residencia!;
-      responsavelController.text = residencia.familia;
       enderecoController.text = residencia.endereco;
-      tipoImovel = residencia.tipoImovel;
+      tipoImovel = residencia.tipoImovel.isEmpty ? 'Alvenaria' : residencia.tipoImovel;
       possuiAgua = residencia.possuiAgua;
       possuiEnergia = residencia.possuiEnergia;
       possuiEsgoto = residencia.possuiEsgoto;
+      regiaoIdSelecionada = residencia.regiaoId;
     }
   }
 
   @override
   void dispose() {
-    responsavelController.dispose();
     enderecoController.dispose();
-
     super.dispose();
   }
 
@@ -61,14 +66,46 @@ class _ResidenciaFormDialogState extends State<ResidenciaFormDialog> {
               mainAxisSize: MainAxisSize.min,
 
               children: [
-                TextFormField(
-                  controller: responsavelController,
-                  decoration: const InputDecoration(labelText: 'Responsável'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Informe o responsável';
+                FutureBuilder<List<RegiaoModel>>(
+                  future: _futureRegioes,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: LinearProgressIndicator(),
+                      );
                     }
-                    return null;
+
+                    if (snapshot.hasError) {
+                      return Text(
+                        'Não foi possível carregar as regiões.',
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      );
+                    }
+
+                    final regioes = snapshot.data ?? [];
+
+                    return DropdownButtonFormField<int>(
+                      value: regiaoIdSelecionada,
+                      decoration: const InputDecoration(labelText: 'Região'),
+                      items: regioes
+                          .map((r) => DropdownMenuItem(
+                                value: r.id,
+                                child: Text(r.nomeArea),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          regiaoIdSelecionada = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Selecione uma região';
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
 
@@ -162,16 +199,15 @@ class _ResidenciaFormDialogState extends State<ResidenciaFormDialog> {
             }
 
             final residencia = ResidenciaModel(
-              id: widget.editando
-                  ? widget.residencia!.id
-                  : DateTime.now().millisecondsSinceEpoch,
+              id: widget.editando ? widget.residencia!.id : 0,
 
-              familia: responsavelController.text.trim(),
+              familia: '',
               endereco: enderecoController.text.trim(),
               tipoImovel: tipoImovel,
               possuiAgua: possuiAgua,
               possuiEnergia: possuiEnergia,
               possuiEsgoto: possuiEsgoto,
+              regiaoId: regiaoIdSelecionada,
             );
 
             Navigator.pop(context, residencia);

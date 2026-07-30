@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/models/morador_model.dart';
+import '../../../data/models/familia_model.dart';
+import '../../../data/services/familia_service.dart';
 
 class MoradorFormDialog extends StatefulWidget {
   final MoradorModel? morador;
@@ -9,6 +11,13 @@ class MoradorFormDialog extends StatefulWidget {
   State<MoradorFormDialog> createState() => _MoradorFormDialogState();
 }
 
+// Precisa bater com o enum Sexo do backend (com.clinica.agendamento.enums.Sexo).
+const Map<String, String> _sexos = {
+  'MASCULINO': 'Masculino',
+  'FEMININO': 'Feminino',
+  'OUTRO': 'Outro',
+};
+
 class _MoradorFormDialogState extends State<MoradorFormDialog> {
   final _formKey = GlobalKey<FormState>();
 
@@ -16,16 +25,18 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
   final cpfController = TextEditingController();
   final telefoneController = TextEditingController();
 
+  final FamiliaService _familiaService = FamiliaService();
+  late Future<List<FamiliaModel>> _futureFamilias;
+
   DateTime? dataNascimento;
   String? sexo;
-  String? familia;
-
-  // Carregar lista através do endpoint GET /familias.
-  final List<String> familias = const ['Maria Silva', 'João Pereira'];
+  int? familiaIdSelecionada;
 
   @override
   void initState() {
     super.initState();
+
+    _futureFamilias = _familiaService.listarFamilias();
 
     if (widget.morador != null) {
       final morador = widget.morador!;
@@ -35,8 +46,11 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
       telefoneController.text = morador.telefone;
 
       dataNascimento = morador.dataNascimento;
-      sexo = morador.sexo;
-      familia = morador.familia;
+
+      // O model guarda o sexo como veio do backend (ex: "MASCULINO").
+      sexo = _sexos.containsKey(morador.sexo) ? morador.sexo : null;
+
+      familiaIdSelecionada = int.tryParse(morador.familia);
     }
   }
 
@@ -90,11 +104,22 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
 
                 TextFormField(
                   controller: cpfController,
-                  decoration: const InputDecoration(labelText: 'CPF'),
+                  decoration: const InputDecoration(
+                    labelText: 'CPF',
+                    hintText: 'Somente números, 11 dígitos',
+                  ),
+                  keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
+                    final apenasDigitos = (value ?? '').replaceAll(RegExp(r'\D'), '');
+
+                    if (apenasDigitos.isEmpty) {
                       return 'Informe o CPF';
                     }
+
+                    if (apenasDigitos.length != 11) {
+                      return 'CPF deve ter 11 dígitos (sem pontos ou traço)';
+                    }
+
                     return null;
                   },
                 ),
@@ -126,16 +151,9 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
                 DropdownButtonFormField<String>(
                   value: sexo,
                   decoration: const InputDecoration(labelText: 'Sexo'),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'Masculino',
-                      child: Text('Masculino'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'Feminino',
-                      child: Text('Feminino'),
-                    ),
-                  ],
+                  items: _sexos.entries
+                      .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value)))
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
                       sexo = value;
@@ -151,22 +169,51 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
 
                 const SizedBox(height: 16),
 
-                DropdownButtonFormField<String>(
-                  value: familia,
-                  decoration: const InputDecoration(labelText: 'Família'),
-                  items: familias.map((f) {
-                    return DropdownMenuItem(value: f, child: Text(f));
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      familia = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Selecione a família';
+                // ---------- Família ----------
+                FutureBuilder<List<FamiliaModel>>(
+                  future: _futureFamilias,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: LinearProgressIndicator(),
+                      );
                     }
-                    return null;
+
+                    if (snapshot.hasError) {
+                      return Text(
+                        'Não foi possível carregar as famílias.',
+                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      );
+                    }
+
+                    final familias = snapshot.data ?? [];
+
+                    return DropdownButtonFormField<int>(
+                      value: familiaIdSelecionada,
+                      decoration: const InputDecoration(labelText: 'Família'),
+                      isExpanded: true,
+                      items: familias
+                          .map((f) => DropdownMenuItem(
+                                value: f.id,
+                                child: Text(
+                                  '${f.endereco} (${f.responsavel})',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          familiaIdSelecionada = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Selecione a família';
+                        }
+                        return null;
+                      },
+                    );
                   },
                 ),
               ],
@@ -195,15 +242,17 @@ class _MoradorFormDialogState extends State<MoradorFormDialog> {
               return;
             }
 
-            final morador = MoradorModel(
-              id: widget.morador?.id ?? DateTime.now().millisecondsSinceEpoch,
+            final cpfLimpo = cpfController.text.replaceAll(RegExp(r'\D'), '');
 
-              nome: nomeController.text,
-              cpf: cpfController.text,
-              telefone: telefoneController.text,
+            final morador = MoradorModel(
+              id: widget.morador?.id ?? 0,
+
+              nome: nomeController.text.trim(),
+              cpf: cpfLimpo,
+              telefone: telefoneController.text.trim(),
               dataNascimento: dataNascimento!,
               sexo: sexo!,
-              familia: familia!,
+              familia: familiaIdSelecionada.toString(),
             );
 
             Navigator.pop(context, morador);

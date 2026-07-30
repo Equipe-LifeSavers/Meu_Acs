@@ -64,18 +64,63 @@ class _MoradorScreenState extends State<MoradorScreen> {
   }
 
   Future<void> adicionarMorador(MoradorModel morador) async {
-    await controller.adicionarMorador(morador);
-    await carregarMoradores();
+    try {
+      await controller.adicionarMorador(morador);
+      await carregarMoradores();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Morador cadastrado com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao cadastrar morador: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> editarMorador(MoradorModel morador) async {
-    await controller.atualizarMorador(morador);
-    await carregarMoradores();
+    try {
+      await controller.atualizarMorador(morador);
+      await carregarMoradores();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Morador atualizado com sucesso.')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao atualizar morador: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   Future<void> excluirMorador(int id) async {
-    await controller.excluirMorador(id);
-    await carregarMoradores();
+    try {
+      await controller.excluirMorador(id);
+      await carregarMoradores();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao excluir morador: ${_mensagemAmigavel(e)}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
+  String _mensagemAmigavel(Object erro) {
+    final texto = erro.toString();
+    return texto.replaceFirst('Exception: ', '');
   }
 
   @override
